@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
+import { useToast } from '@/lib/toast'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
-import { ArrowLeft, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Check } from 'lucide-react'
 import Link from 'next/link'
 
 const genderOptions = [
@@ -14,8 +15,16 @@ const genderOptions = [
   { value: 'F', label: 'Feminino' },
 ]
 
+const STEPS = [
+  { id: 1, label: 'Dados Pessoais' },
+  { id: 2, label: 'Morada' },
+  { id: 3, label: 'Documentos & Saúde' },
+  { id: 4, label: 'Notas' },
+]
+
 export default function NovoMembroPage() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [hasInsurance, setHasInsurance] = useState(false)
@@ -55,6 +64,14 @@ export default function NovoMembroPage() {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }))
   }
 
+  // Progresso: step 1 obrigatório (nome + apelido), steps 2-4 sempre completos (opcionais)
+  function getCompletedSteps(): number {
+    if (!form.first_name.trim() || !form.last_name.trim()) return 0
+    return 4
+  }
+
+  const completedSteps = getCompletedSteps()
+
   function validate() {
     const newErrors: Record<string, string> = {}
     if (!form.first_name.trim()) newErrors.first_name = 'O nome é obrigatório'
@@ -79,12 +96,10 @@ export default function NovoMembroPage() {
       enrollment_date: form.enrollment_date || null,
     }
 
-    // Numeric fields
     if (form.member_number.trim()) {
       payload.member_number = parseInt(form.member_number.trim(), 10)
     }
 
-    // String fields — empty string becomes null
     const stringFields = [
       'first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender',
       'address', 'city', 'postal_code', 'nif', 'cc_number',
@@ -104,11 +119,12 @@ export default function NovoMembroPage() {
       .single()
 
     if (error) {
-      setErrors({ submit: 'Erro ao guardar o membro. Tenta novamente.' })
+      showToast('Erro ao guardar o membro. Tenta novamente.', 'error')
       setLoading(false)
       return
     }
 
+    showToast('Membro registado com sucesso')
     router.push(`/membros/${data.id}`)
   }
 
@@ -119,6 +135,33 @@ export default function NovoMembroPage() {
         <ArrowLeft className="h-4 w-4" />
         Voltar aos membros
       </Link>
+
+      {/* Barra de progresso — 4 passos */}
+      <div className="flex items-center gap-1">
+        {STEPS.map((step, i) => {
+          const isComplete = step.id <= completedSteps
+          const isCurrent = step.id === completedSteps + 1 || (completedSteps === 4 && step.id === 4)
+          return (
+            <div key={step.id} className="flex-1 flex items-center gap-1">
+              <div className="flex items-center gap-2 flex-1">
+                <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                  isComplete ? 'bg-green-500 text-white' : isCurrent ? 'bg-accent text-white' : 'bg-quartel-700 text-quartel-400'
+                }`}>
+                  {isComplete ? <Check className="h-3.5 w-3.5" /> : step.id}
+                </div>
+                <span className={`text-xs font-medium hidden sm:inline ${
+                  isComplete ? 'text-green-400' : isCurrent ? 'text-white' : 'text-quartel-500'
+                }`}>
+                  {step.label}
+                </span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <div className={`h-0.5 flex-1 rounded-full ${isComplete ? 'bg-green-500/50' : 'bg-quartel-700'}`} />
+              )}
+            </div>
+          )
+        })}
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
@@ -188,44 +231,62 @@ export default function NovoMembroPage() {
           )}
         </section>
 
-        {/* Secção: Dados Pessoais */}
-        <section className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">Dados Pessoais do Titular</h2>
+        {/* Step 1 — Dados Pessoais */}
+        <section id="step-1" className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">1. Dados Pessoais do Titular</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input label="Nome *" value={form.first_name} onChange={(e) => set('first_name', e.target.value)} error={errors.first_name} placeholder="Raphael" />
             <Input label="Apelido *" value={form.last_name} onChange={(e) => set('last_name', e.target.value)} error={errors.last_name} placeholder="Santana" />
-            <Input label="Email" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="raphael@email.pt" />
-            <Input label="Telemóvel" type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="939 192 209" />
-            <Input label="Data de Nascimento" type="date" value={form.date_of_birth} onChange={(e) => set('date_of_birth', e.target.value)} />
-            <Select label="Género" options={genderOptions} placeholder="Selecionar..." value={form.gender} onChange={(e) => set('gender', e.target.value)} />
+            <div>
+              <Input label="Email" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="raphael@email.pt" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
+            <div>
+              <Input label="Telemóvel" type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="939 192 209" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
+            <div>
+              <Input label="Data de Nascimento" type="date" value={form.date_of_birth} onChange={(e) => set('date_of_birth', e.target.value)} />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
+            <div>
+              <Select label="Género" options={genderOptions} placeholder="Selecionar..." value={form.gender} onChange={(e) => set('gender', e.target.value)} />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
           </div>
         </section>
 
-        {/* Secção: Morada */}
-        <section className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">Morada</h2>
+        {/* Step 2 — Morada */}
+        <section id="step-2" className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">2. Morada</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <Input label="Morada" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="Rua José do Patrocínio, B/C B" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
             </div>
-            <Input label="Cód. Postal" value={form.postal_code} onChange={(e) => set('postal_code', e.target.value)} placeholder="1950-060" />
-            <Input label="Localidade" value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="Moscavide" />
+            <div>
+              <Input label="Cód. Postal" value={form.postal_code} onChange={(e) => set('postal_code', e.target.value)} placeholder="1950-060" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
+            <div>
+              <Input label="Localidade" value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="Moscavide" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
           </div>
         </section>
 
-        {/* Secção: Documentos */}
-        <section className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">Documentos</h2>
+        {/* Step 3 — Documentos & Saúde */}
+        <section id="step-3" className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">3. Documentos & Saúde</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label="B.I. / Cartão de Cidadão" value={form.cc_number} onChange={(e) => set('cc_number', e.target.value)} placeholder="7V56V42D6" />
-            <Input label="NIF" value={form.nif} onChange={(e) => set('nif', e.target.value)} placeholder="267799322" />
-          </div>
-        </section>
-
-        {/* Secção: Saúde & Emergência */}
-        <section className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">Saúde & Emergência</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Input label="B.I. / Cartão de Cidadão" value={form.cc_number} onChange={(e) => set('cc_number', e.target.value)} placeholder="7V56V42D6" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
+            <div>
+              <Input label="NIF" value={form.nif} onChange={(e) => set('nif', e.target.value)} placeholder="267799322" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-quartel-200 mb-1.5">Condições médicas</label>
               <textarea
@@ -235,6 +296,7 @@ export default function NovoMembroPage() {
                 rows={3}
                 className="w-full rounded-lg border border-quartel-700 bg-quartel-900 text-white placeholder:text-quartel-500 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
               />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
             </div>
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-quartel-200 mb-1.5">Alergias</label>
@@ -245,48 +307,79 @@ export default function NovoMembroPage() {
                 rows={2}
                 className="w-full rounded-lg border border-quartel-700 bg-quartel-900 text-white placeholder:text-quartel-500 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
               />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
             </div>
-            <Input label="Contacto de Emergência" value={form.emergency_contact_name} onChange={(e) => set('emergency_contact_name', e.target.value)} placeholder="Nome da pessoa" />
-            <Input label="Telefone de Emergência" type="tel" value={form.emergency_contact_phone} onChange={(e) => set('emergency_contact_phone', e.target.value)} placeholder="939 192 209 (vem8) Cristina" />
+            <div>
+              <Input label="Contacto de Emergência" value={form.emergency_contact_name} onChange={(e) => set('emergency_contact_name', e.target.value)} placeholder="Nome da pessoa" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
+            <div>
+              <Input label="Telefone de Emergência" type="tel" value={form.emergency_contact_phone} onChange={(e) => set('emergency_contact_phone', e.target.value)} placeholder="939 192 209" />
+              <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+            </div>
+          </div>
+
+          {/* Sub-secção: Responsável (menores) */}
+          <div className="mt-6 pt-4 border-t border-quartel-700 space-y-4">
+            <div>
+              <h3 className="text-xs font-semibold text-quartel-400 uppercase tracking-wide">Responsável</h3>
+              <p className="text-xs text-quartel-500 mt-0.5">Preencher apenas se o membro for menor de idade</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <Input label="Nome do Responsável" value={form.guardian_name} onChange={(e) => set('guardian_name', e.target.value)} placeholder="Nome completo" />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+              <div className="sm:col-span-2">
+                <Input label="Morada" value={form.guardian_address} onChange={(e) => set('guardian_address', e.target.value)} placeholder="Rua, número..." />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+              <div>
+                <Input label="Cód. Postal" value={form.guardian_postal_code} onChange={(e) => set('guardian_postal_code', e.target.value)} placeholder="0000-000" />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+              <div>
+                <Input label="Localidade" value={form.guardian_city} onChange={(e) => set('guardian_city', e.target.value)} placeholder="Lisboa" />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+              <div>
+                <Input label="B.I. / C.C." value={form.guardian_cc} onChange={(e) => set('guardian_cc', e.target.value)} placeholder="Nº Documento" />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+              <div>
+                <Input label="NIF" value={form.guardian_nif} onChange={(e) => set('guardian_nif', e.target.value)} placeholder="123456789" />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+              <div>
+                <Input label="Data de Nascimento" type="date" value={form.guardian_date_of_birth} onChange={(e) => set('guardian_date_of_birth', e.target.value)} />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+              <div>
+                <Input label="Telemóvel" type="tel" value={form.guardian_phone} onChange={(e) => set('guardian_phone', e.target.value)} placeholder="912 345 678" />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+              <div className="sm:col-span-2">
+                <Input label="Email" type="email" value={form.guardian_email} onChange={(e) => set('guardian_email', e.target.value)} placeholder="responsavel@email.pt" />
+                <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Secção: Responsável (menores) */}
-        <section className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
+        {/* Step 4 — Notas */}
+        <section id="step-4" className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">4. Notas</h2>
           <div>
-            <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">Responsável</h2>
-            <p className="text-xs text-quartel-500 mt-0.5">Preencher apenas se o membro for menor de idade</p>
+            <label className="block text-sm font-medium text-quartel-200 mb-1.5">Notas internas</label>
+            <textarea
+              value={form.notes}
+              onChange={(e) => set('notes', e.target.value)}
+              placeholder="Observações sobre o membro..."
+              rows={3}
+              className="w-full rounded-lg border border-quartel-700 bg-quartel-900 text-white placeholder:text-quartel-500 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+            />
+            <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              <Input label="Nome do Responsável" value={form.guardian_name} onChange={(e) => set('guardian_name', e.target.value)} placeholder="Nome completo" />
-            </div>
-            <div className="sm:col-span-2">
-              <Input label="Morada" value={form.guardian_address} onChange={(e) => set('guardian_address', e.target.value)} placeholder="Rua, número..." />
-            </div>
-            <Input label="Cód. Postal" value={form.guardian_postal_code} onChange={(e) => set('guardian_postal_code', e.target.value)} placeholder="0000-000" />
-            <Input label="Localidade" value={form.guardian_city} onChange={(e) => set('guardian_city', e.target.value)} placeholder="Lisboa" />
-            <Input label="B.I. / C.C." value={form.guardian_cc} onChange={(e) => set('guardian_cc', e.target.value)} placeholder="Nº Documento" />
-            <Input label="NIF" value={form.guardian_nif} onChange={(e) => set('guardian_nif', e.target.value)} placeholder="123456789" />
-            <Input label="Data de Nascimento" type="date" value={form.guardian_date_of_birth} onChange={(e) => set('guardian_date_of_birth', e.target.value)} />
-            <Input label="Telemóvel" type="tel" value={form.guardian_phone} onChange={(e) => set('guardian_phone', e.target.value)} placeholder="912 345 678" />
-            <div className="sm:col-span-2">
-              <Input label="Email" type="email" value={form.guardian_email} onChange={(e) => set('guardian_email', e.target.value)} placeholder="responsavel@email.pt" />
-            </div>
-          </div>
-        </section>
-
-        {/* Secção: Notas */}
-        <section className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">Notas</h2>
-          <label className="block text-sm font-medium text-quartel-200 mb-1.5">Notas internas</label>
-          <textarea
-            value={form.notes}
-            onChange={(e) => set('notes', e.target.value)}
-            placeholder="Observações sobre o membro..."
-            rows={3}
-            className="w-full rounded-lg border border-quartel-700 bg-quartel-900 text-white placeholder:text-quartel-500 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
-          />
         </section>
 
         {errors.submit && (
