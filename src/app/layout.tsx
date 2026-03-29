@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt" className="dark" suppressHydrationWarning>
-      <head>
+      <body className="antialiased">
         {/* Script anti-flash: aplica o tema guardado antes do primeiro paint */}
         <Script
           id="theme-anti-flash"
@@ -31,8 +31,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
-      </head>
-      <body className="antialiased">
         <AppShell>{children}</AppShell>
       </body>
     </html>
