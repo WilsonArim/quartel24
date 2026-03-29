@@ -7,7 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
-import { ArrowLeft, ShieldCheck, Check } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { ArrowLeft, ShieldCheck, Check, User, MapPin, FileText, StickyNote, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 
 const genderOptions = [
@@ -231,9 +232,8 @@ export default function NovoMembroPage() {
           )}
         </section>
 
-        {/* Step 1 — Dados Pessoais */}
-        <section id="step-1" className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">1. Dados Pessoais do Titular</h2>
+        {/* Step 1 — Dados Pessoais (aberta por defeito) */}
+        <FormSection title="Dados Pessoais" icon={<User className="h-4 w-4" />} defaultOpen={true}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input label="Nome *" value={form.first_name} onChange={(e) => set('first_name', e.target.value)} error={errors.first_name} placeholder="Raphael" />
             <Input label="Apelido *" value={form.last_name} onChange={(e) => set('last_name', e.target.value)} error={errors.last_name} placeholder="Santana" />
@@ -254,11 +254,10 @@ export default function NovoMembroPage() {
               <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
             </div>
           </div>
-        </section>
+        </FormSection>
 
         {/* Step 2 — Morada */}
-        <section id="step-2" className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">2. Morada</h2>
+        <FormSection title="Morada" icon={<MapPin className="h-4 w-4" />} badge="Todos os campos opcionais">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <Input label="Morada" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="Rua José do Patrocínio, B/C B" />
@@ -273,11 +272,10 @@ export default function NovoMembroPage() {
               <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
             </div>
           </div>
-        </section>
+        </FormSection>
 
         {/* Step 3 — Documentos & Saúde */}
-        <section id="step-3" className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">3. Documentos & Saúde</h2>
+        <FormSection title="Documentos & Saúde" icon={<FileText className="h-4 w-4" />} badge="NIF, CC, emergência, responsável">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Input label="B.I. / Cartão de Cidadão" value={form.cc_number} onChange={(e) => set('cc_number', e.target.value)} placeholder="7V56V42D6" />
@@ -364,11 +362,10 @@ export default function NovoMembroPage() {
               </div>
             </div>
           </div>
-        </section>
+        </FormSection>
 
         {/* Step 4 — Notas */}
-        <section id="step-4" className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-quartel-300 uppercase tracking-wide">4. Notas</h2>
+        <FormSection title="Notas" icon={<StickyNote className="h-4 w-4" />} badge="Observações internas">
           <div>
             <label className="block text-sm font-medium text-quartel-200 mb-1.5">Notas internas</label>
             <textarea
@@ -380,7 +377,7 @@ export default function NovoMembroPage() {
             />
             <p className="text-xs text-quartel-500 mt-1">(opcional)</p>
           </div>
-        </section>
+        </FormSection>
 
         {errors.submit && (
           <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-400">
@@ -396,6 +393,65 @@ export default function NovoMembroPage() {
           <Button type="submit" loading={loading}>Guardar Membro</Button>
         </div>
       </form>
+    </div>
+  )
+}
+
+// Secção colapsável do formulário
+function FormSection({
+  title,
+  icon,
+  children,
+  defaultOpen = false,
+  badge,
+}: {
+  title: string
+  icon: React.ReactNode
+  children: React.ReactNode
+  defaultOpen?: boolean
+  badge?: string
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+
+  return (
+    <div className={cn(
+      'rounded-2xl border transition-all duration-200',
+      open
+        ? 'bg-quartel-800/60 border-quartel-700/60'
+        : 'bg-quartel-900/40 border-quartel-800/40 hover:border-quartel-700/40'
+    )}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            'p-2 rounded-lg transition-colors',
+            open ? 'bg-accent/15 text-accent' : 'bg-quartel-700/50 text-quartel-400'
+          )}>
+            {icon}
+          </div>
+          <div>
+            <p className={cn('text-sm font-semibold', open ? 'text-white' : 'text-quartel-300')}>
+              {title}
+            </p>
+            {badge && !open && (
+              <p className="text-xs text-quartel-500 mt-0.5">{badge}</p>
+            )}
+          </div>
+        </div>
+        <ChevronDown className={cn(
+          'h-4 w-4 text-quartel-500 transition-transform duration-200',
+          open ? 'rotate-180 text-quartel-300' : ''
+        )} />
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 space-y-4">
+          {children}
+        </div>
+      )}
     </div>
   )
 }
