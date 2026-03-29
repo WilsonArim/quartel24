@@ -117,8 +117,8 @@ export default async function DashboardPage() {
                 </span>
               </div>
               <div className="mt-4">
-                <p className="text-4xl font-black text-white tracking-tight tabular-nums leading-none">{value}</p>
-                <p className="text-xs text-quartel-400 mt-1.5 font-medium">{label}</p>
+                <p className="text-4xl font-black dark:text-white text-gray-900 tracking-tight tabular-nums leading-none">{value}</p>
+                <p className="text-xs dark:text-quartel-400 text-gray-500 mt-1.5 font-medium">{label}</p>
               </div>
             </Card>
           </Link>
@@ -156,10 +156,10 @@ export default async function DashboardPage() {
             {expiring.map((item) => {
               const urgencyBg =
                 item.days_remaining === 0
-                  ? 'bg-red-500/15 border border-red-500/30'
+                  ? 'dark:bg-red-500/15 bg-red-50 border dark:border-red-500/20 border-red-200'
                   : item.days_remaining <= 3
-                  ? 'bg-orange-500/10 border border-orange-500/20'
-                  : 'bg-yellow-500/10'
+                  ? 'dark:bg-orange-500/10 bg-orange-50 border dark:border-orange-500/20 border-orange-200'
+                  : 'dark:bg-yellow-500/10 bg-yellow-50'
               const badgeColor: 'red' | 'orange' | 'yellow' =
                 item.days_remaining === 0 ? 'red' : item.days_remaining <= 3 ? 'orange' : 'yellow'
 
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
                       {item.first_name.charAt(0)}{item.last_name.charAt(0)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate">
+                      <p className="text-sm font-medium dark:text-white text-gray-900 truncate">
                         {item.first_name} {item.last_name}
                       </p>
                       <div className="flex items-center gap-1 flex-wrap mt-0.5">

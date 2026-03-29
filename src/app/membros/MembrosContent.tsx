@@ -129,19 +129,19 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
       ) : (
         <>
           {/* Desktop: tabela */}
-          <div className="hidden md:block bg-quartel-800 border border-quartel-700 rounded-xl overflow-hidden">
+          <div className="hidden md:block dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 rounded-xl overflow-hidden shadow-[var(--shadow-card)]">
             <table className="w-full text-sm">
               <thead className="border-b border-quartel-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Nome</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Telefone</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Plano</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Modalidades</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Estado</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Expira em</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Nome</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Telefone</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Plano</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Modalidades</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Expira em</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-quartel-800">
+              <tbody className="divide-y dark:divide-quartel-800 divide-gray-100">
                 {filtered.map((member) => {
                   const sub = member.subscription
                   const status = sub ? getSubscriptionStatusLabel(sub.end_date) : null
@@ -156,19 +156,19 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
                           <div className="w-8 h-8 rounded-full bg-quartel-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
                             {member.first_name.charAt(0)}{member.last_name.charAt(0)}
                           </div>
-                          <span className="font-medium text-white">
+                          <span className="font-medium dark:text-white text-gray-900">
                             {member.first_name} {member.last_name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-quartel-300">
+                      <td className="px-4 py-3 dark:text-quartel-300 text-gray-500">
                         {member.phone ? (
                           <a href={`tel:${member.phone}`} className="text-accent hover:underline" onClick={(e) => e.stopPropagation()}>
                             {member.phone}
                           </a>
                         ) : '—'}
                       </td>
-                      <td className="px-4 py-3 text-quartel-300">{sub?.plan?.name ?? '—'}</td>
+                      <td className="px-4 py-3 dark:text-quartel-300 text-gray-500">{sub?.plan?.name ?? '—'}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-1 flex-wrap">
                           {sub?.plan?.modalities?.map((m) => (
@@ -189,7 +189,7 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
                           <Badge color="gray" size="sm">Sem subscrição</Badge>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-quartel-300">
+                      <td className="px-4 py-3 dark:text-quartel-300 text-gray-500">
                         {sub ? formatDate(sub.end_date) : '—'}
                       </td>
                     </tr>

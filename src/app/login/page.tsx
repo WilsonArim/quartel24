@@ -33,7 +33,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-quartel-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen dark:bg-quartel-950 bg-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
 
       {/* Background: gradientes decorativos */}
       <div className="absolute inset-0 pointer-events-none">

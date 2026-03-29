@@ -196,20 +196,20 @@ export default function MembroPerfilClient({
       </Link>
 
       {/* Hero do perfil */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-quartel-800 via-quartel-800 to-quartel-900 border border-quartel-700/50 p-6">
+      <div className="relative overflow-hidden rounded-2xl dark:bg-gradient-to-br dark:from-quartel-800 dark:via-quartel-800 dark:to-quartel-900 bg-white dark:border-quartel-700/50 border-gray-200 shadow-[var(--shadow-card)] p-6">
         {/* Background decorativo */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/3 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-8 -left-8 w-48 h-48 bg-quartel-700/20 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
           {/* Avatar grande */}
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-quartel-600 to-quartel-700 flex items-center justify-center text-2xl font-black text-white ring-2 ring-quartel-600 shrink-0">
+          <div className="w-16 h-16 rounded-2xl dark:bg-gradient-to-br dark:from-quartel-600 dark:to-quartel-700 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-2xl font-black dark:text-white text-gray-700 dark:ring-quartel-600 ring-gray-300 ring-2 shrink-0">
             {getInitials(member.first_name, member.last_name)}
           </div>
 
           {/* Nome + estado */}
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-black text-white tracking-tight">
+            <h1 className="text-2xl font-black dark:text-white text-gray-900 tracking-tight">
               {member.first_name} {member.last_name}
             </h1>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -247,7 +247,7 @@ export default function MembroPerfilClient({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Dados pessoais */}
-        <div className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-3">
+        <div className="dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 rounded-xl p-5 space-y-3 shadow-[var(--shadow-card)]">
           <h3 className="text-xs font-semibold text-quartel-400 uppercase tracking-wide flex items-center gap-1.5">
             <FileText className="h-3.5 w-3.5" />Dados Pessoais
           </h3>
@@ -261,7 +261,7 @@ export default function MembroPerfilClient({
         </div>
 
         {/* Saúde */}
-        <div className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 space-y-3">
+        <div className="dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 rounded-xl p-5 space-y-3 shadow-[var(--shadow-card)]">
           <h3 className="text-xs font-semibold text-quartel-400 uppercase tracking-wide flex items-center gap-1.5">
             <Heart className="h-3.5 w-3.5" />Saúde & Emergência
           </h3>
@@ -274,7 +274,7 @@ export default function MembroPerfilClient({
       </div>
 
       {/* Subscrição atual */}
-      <div className="bg-quartel-800 border border-quartel-700 rounded-xl p-5">
+      <div className="dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 rounded-xl p-5 shadow-[var(--shadow-card)]">
         <h3 className="text-xs font-semibold text-quartel-400 uppercase tracking-wide mb-4">Subscrição Atual</h3>
         {subscription ? (
           <div className="flex items-center justify-between flex-wrap gap-4">
@@ -307,7 +307,7 @@ export default function MembroPerfilClient({
       </div>
 
       {/* Histórico de pagamentos */}
-      <div className="bg-quartel-800 border border-quartel-700 rounded-xl p-5">
+      <div className="dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 rounded-xl p-5 shadow-[var(--shadow-card)]">
         <h3 className="text-xs font-semibold text-quartel-400 uppercase tracking-wide mb-4">Histórico de Pagamentos</h3>
         {payments.length === 0 ? (
           <EmptyState title="Sem pagamentos registados" className="py-6" />

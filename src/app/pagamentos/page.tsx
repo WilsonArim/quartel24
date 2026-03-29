@@ -39,22 +39,22 @@ export default async function PagamentosPage() {
   return (
     <div className="space-y-5">
       {/* Resumo do mês */}
-      <div className="bg-quartel-800 border border-quartel-700 rounded-xl p-5">
+      <div className="dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 rounded-xl p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-quartel-400">Receita do mês atual</p>
-            <p className="text-3xl font-bold text-white mt-0.5">{formatCurrency(monthTotal)}</p>
+            <p className="text-sm dark:text-quartel-400 text-gray-500">Receita do mês atual</p>
+            <p className="text-3xl font-bold dark:text-white text-gray-900 mt-0.5">{formatCurrency(monthTotal)}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-quartel-400">{monthPayments.length} pagamentos</p>
+            <p className="text-sm dark:text-quartel-400 text-gray-500">{monthPayments.length} pagamentos</p>
           </div>
         </div>
       </div>
 
       {/* Tabela de pagamentos */}
-      <div className="bg-quartel-800 border border-quartel-700 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-quartel-700">
-          <h2 className="text-sm font-semibold text-white">Todos os Pagamentos</h2>
+      <div className="dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 rounded-xl overflow-hidden shadow-[var(--shadow-card)]">
+        <div className="px-5 py-4 border-b dark:border-quartel-700 border-gray-200">
+          <h2 className="text-sm font-semibold dark:text-white text-gray-900">Todos os Pagamentos</h2>
         </div>
 
         {!payments || payments.length === 0 ? (
@@ -75,12 +75,12 @@ export default async function PagamentosPage() {
               <table className="w-full text-sm">
                 <thead className="border-b border-quartel-700">
                   <tr>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Data</th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Membro</th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Valor</th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Método</th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Plano</th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-quartel-400 uppercase tracking-wider">Notas</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Data</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Membro</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Valor</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Método</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Plano</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Notas</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-quartel-800">

@@ -313,9 +313,9 @@ function PlanCard({
   onToggle: (p: SubscriptionPlan) => void
 }) {
   return (
-    <div className="bg-quartel-800 border border-quartel-700 rounded-xl p-5 flex flex-col gap-3">
+    <div className="dark:bg-quartel-800/60 bg-white dark:border-quartel-700/50 border-gray-200 rounded-xl p-5 flex flex-col gap-3 shadow-[var(--shadow-card)]">
       <div className="flex items-start justify-between gap-2">
-        <p className="font-semibold text-white leading-tight">{plan.name}</p>
+        <p className="font-semibold dark:text-white text-gray-900 leading-tight">{plan.name}</p>
         <Badge color={plan.is_active ? 'green' : 'gray'} size="sm">
           {plan.is_active ? 'Ativo' : 'Inativo'}
         </Badge>
@@ -339,8 +339,8 @@ function PlanCard({
       {/* Preço e duração */}
       <div className="flex items-end justify-between mt-auto">
         <div>
-          <p className="text-2xl font-bold text-white">{formatCurrency(plan.price)}</p>
-          <p className="text-xs text-quartel-500">{plan.duration_months} mês{plan.duration_months > 1 ? 'es' : ''}</p>
+          <p className="text-2xl font-bold dark:text-white text-gray-900">{formatCurrency(plan.price)}</p>
+          <p className="text-xs dark:text-quartel-500 text-gray-400">{plan.duration_months} mês{plan.duration_months > 1 ? 'es' : ''}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="ghost" size="sm" onClick={() => onEdit(plan)}>
