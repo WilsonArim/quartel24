@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Paleta Quartel — escura/militar */
+  --color-quartel-50: #f0f1f5;
+  --color-quartel-100: #d9dbe5;
+  --color-quartel-200: #b3b7cb;
+  --color-quartel-300: #8d93b1;
+  --color-quartel-400: #676f97;
+  --color-quartel-500: #414b7d;
+  --color-quartel-600: #343c64;
+  --color-quartel-700: #272d4b;
+  --color-quartel-800: #1a1e32;
+  --color-quartel-900: #0d0f19;
+  --color-quartel-950: #06070c;
+
+  /* Accent — vermelho Quartel */
+  --color-accent: #e63946;
+  --color-accent-light: #ff6b6b;
+  --color-accent-dark: #c1121f;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Base */
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #06070c;
+  color: #f0f1f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d0f19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #272d4b;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #343c64;
+}
+
+/* Transições suaves */
+* {
+  transition-property: color, background-color, border-color, opacity;
+  transition-timing-function: ease;
+  transition-duration: 150ms;
+}
+
+/* Sem transição em elementos com animação própria */
+[data-no-transition] {
+  transition: none !important;
 }
