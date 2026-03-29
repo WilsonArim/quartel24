@@ -28,12 +28,14 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={selectId}
           className={cn(
-            'w-full rounded-lg border bg-quartel-900 text-white',
-            'focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent',
+            'w-full rounded-xl border bg-quartel-900/80 text-white',
+            'hover:border-quartel-600',
+            'focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/10',
             'disabled:opacity-50 disabled:cursor-not-allowed',
+            'transition-all duration-150',
             'py-2 px-3 text-sm cursor-pointer',
             error
-              ? 'border-red-500 focus:ring-red-500'
+              ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500'
               : 'border-quartel-700',
             className
           )}

@@ -1,18 +1,25 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import { useToast } from '@/lib/toast'
-import { CheckCircle, XCircle, Info, X } from 'lucide-react'
+import { CheckCircle, XCircle, Info } from 'lucide-react'
 
-const icons = {
+const toastIcons = {
   success: CheckCircle,
   error: XCircle,
   info: Info,
 }
 
-const styles = {
-  success: 'bg-green-500/15 border-green-500/30 text-green-300',
-  error: 'bg-red-500/15 border-red-500/30 text-red-300',
-  info: 'bg-blue-500/15 border-blue-500/30 text-blue-300',
+const toastStyles = {
+  success: 'border-green-500/30 bg-green-500/10',
+  error: 'border-red-500/30 bg-red-500/10',
+  info: 'border-blue-500/30 bg-blue-500/10',
+}
+
+const iconColors = {
+  success: 'text-green-400',
+  error: 'text-red-400',
+  info: 'text-blue-400',
 }
 
 export function ToastContainer() {
@@ -21,19 +28,23 @@ export function ToastContainer() {
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm">
+    <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-2 pointer-events-none">
       {toasts.map((toast) => {
-        const Icon = icons[toast.type]
+        const Icon = toastIcons[toast.type]
         return (
           <div
             key={toast.id}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg animate-in fade-in slide-in-from-bottom-2 ${styles[toast.type]}`}
+            className={cn(
+              'flex items-center gap-3 px-4 py-3 rounded-xl border',
+              'glass shadow-2xl shadow-black/50',
+              'pointer-events-auto cursor-pointer',
+              'animate-slide-in-right',
+              toastStyles[toast.type]
+            )}
+            onClick={() => removeToast(toast.id)}
           >
-            <Icon className="h-4 w-4 shrink-0" />
-            <p className="text-sm flex-1">{toast.message}</p>
-            <button onClick={() => removeToast(toast.id)} className="shrink-0 opacity-60 hover:opacity-100 cursor-pointer">
-              <X className="h-3.5 w-3.5" />
-            </button>
+            <Icon className={cn('h-4 w-4 shrink-0', iconColors[toast.type])} />
+            <span className="text-sm font-medium text-white">{toast.message}</span>
           </div>
         )
       })}
