@@ -4,18 +4,19 @@ import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatCurrency, formatDate, getModalityLabel, getModalityColor } from '@/lib/utils'
 import {
-  Users, CheckCircle, AlertTriangle, XCircle, TrendingUp, CreditCard, Bell, ArrowUpRight
+  Users, CheckCircle, AlertTriangle, XCircle, TrendingUp, CreditCard, Bell, ArrowUpRight, Cake
 } from 'lucide-react'
 import Link from 'next/link'
-import type { DashboardStats, ExpiringSubscription } from '@/lib/types'
+import type { DashboardStats, ExpiringSubscription, AgeTransitionAlert } from '@/lib/types'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
 
-  const [, statsResult, expiringResult] = await Promise.all([
+  const [, statsResult, expiringResult, ageAlertsResult] = await Promise.all([
     supabase.rpc('expire_subscriptions'),
     supabase.rpc('get_dashboard_stats'),
     supabase.rpc('get_expiring_subscriptions'),
+    supabase.rpc('get_age_transition_alerts'),
   ])
 
   const stats: DashboardStats = statsResult.data ?? {
@@ -28,6 +29,7 @@ export default async function DashboardPage() {
   }
 
   const expiring: ExpiringSubscription[] = expiringResult.data ?? []
+  const ageAlerts: AgeTransitionAlert[] = ageAlertsResult.data ?? []
 
   const metricCards = [
     {
@@ -210,6 +212,87 @@ export default async function DashboardPage() {
           </div>
         )}
       </Card>
+
+      {/* Alertas de transição de idade — 18 anos */}
+      {ageAlerts.length > 0 && (
+        <Card
+          variant="default"
+          header={
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-orange-500/10">
+                  <Cake className="h-4 w-4 text-orange-400" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold dark:text-white text-gray-900">
+                    Transições de Idade
+                  </h2>
+                  <p className="text-xs dark:text-quartel-500 text-gray-400 mt-0.5">
+                    Membros que atingiram 18 anos com plano de criança activo
+                  </p>
+                </div>
+              </div>
+              <Badge color="orange" size="sm">
+                {ageAlerts.length} {ageAlerts.length === 1 ? 'membro' : 'membros'}
+              </Badge>
+            </div>
+          }
+        >
+          <div className="space-y-2">
+            {ageAlerts.map((alert) => {
+              const isTurning18 = alert.turns_18_this_month
+              const urgencyBg = isTurning18
+                ? 'dark:bg-orange-500/10 bg-orange-50 border dark:border-orange-500/20 border-orange-200'
+                : 'dark:bg-red-500/12 bg-red-50 border dark:border-red-500/20 border-red-200'
+
+              // Data do 18.º aniversário
+              const dob = new Date(alert.date_of_birth)
+              const birthday18 = new Date(dob)
+              birthday18.setFullYear(dob.getFullYear() + 18)
+              const birthday18Str = birthday18.toLocaleDateString('pt-PT', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })
+
+              return (
+                <Link
+                  key={alert.member_id}
+                  href={`/membros/${alert.member_id}`}
+                  className={`flex items-center justify-between p-3 rounded-xl hover:opacity-90 transition-all ${urgencyBg}`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${isTurning18 ? 'bg-orange-500/60' : 'bg-red-500/60'}`}>
+                      {alert.first_name.charAt(0)}{alert.last_name.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold dark:text-white text-gray-900 truncate">
+                        {alert.first_name} {alert.last_name}
+                      </p>
+                      <p className="text-xs dark:text-quartel-400 text-gray-500 truncate">
+                        Plano actual: <span className="font-medium">{alert.plan_name}</span>
+                      </p>
+                      <p className="text-xs dark:text-quartel-500 text-gray-400 mt-0.5">
+                        {isTurning18
+                          ? `Faz 18 anos a ${birthday18Str}`
+                          : `Completou ${alert.age_years} anos — por actualizar`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0 ml-4 flex flex-col items-end gap-1">
+                    <Badge color={isTurning18 ? 'orange' : 'red'} size="sm">
+                      {isTurning18 ? '18 anos este mês' : `${alert.age_years} anos`}
+                    </Badge>
+                    <span className="text-xs dark:text-quartel-500 text-gray-400">
+                      Ver perfil →
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </Card>
+      )}
     </div>
   )
 }

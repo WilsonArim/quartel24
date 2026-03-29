@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Sun, Moon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function ThemeToggle({ className }: { className?: string }) {
-  const router = useRouter()
   const [isDark, setIsDark] = useState(() => {
     if (typeof document === 'undefined') return true
     return document.documentElement.classList.contains('dark')
@@ -17,20 +15,18 @@ export function ThemeToggle({ className }: { className?: string }) {
     const nowDark = html.classList.contains('dark')
     const newTheme = nowDark ? 'light' : 'dark'
 
-    // Aplicar no DOM imediatamente
+    // Aplicar no DOM imediatamente — as CSS variables e os dark: variants mudam ao instante
     if (nowDark) {
       html.classList.remove('dark')
     } else {
       html.classList.add('dark')
     }
 
-    // Persistir em cookie (lido pelo servidor no próximo request) e localStorage
+    // Persistir em cookie (para o servidor ler na próxima visita) e localStorage
     document.cookie = `quartel-theme=${newTheme}; path=/; max-age=31536000; SameSite=Lax`
     localStorage.setItem('quartel-theme', newTheme)
     setIsDark(!nowDark)
-
-    // Refrescar para que o servidor renderize com o tema correcto
-    router.refresh()
+    // Sem router.refresh() — o DOM muda imediatamente via classe .dark no <html>
   }
 
   return (

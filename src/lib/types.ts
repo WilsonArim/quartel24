@@ -109,3 +109,15 @@ export type ExpiringSubscription = {
   end_date: string
   days_remaining: number
 }
+
+export type AgeTransitionAlert = {
+  member_id: string
+  first_name: string
+  last_name: string
+  date_of_birth: string
+  age_years: number
+  turns_18_this_month: boolean
+  plan_name: string
+  subscription_id: string
+  subscription_end_date: string
+}
