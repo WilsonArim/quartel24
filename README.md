@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quartel.24 — Sistema de Gestão
 
-## Getting Started
+App web de gestão de membros, subscrições e pagamentos para o ginásio **Quartel.24** (Ginásio, BJJ, MMA).
 
-First, run the development server:
+**Stack:** Next.js 16 · React 19 · TypeScript strict · Tailwind CSS v4 · Supabase · Vercel
+
+---
+
+## Setup
+
+### 1. Instalar dependências
+
+```bash
+npm install
+```
+
+### 2. Configurar variáveis de ambiente
+
+```bash
+cp .env.example .env.local
+```
+
+Editar `.env.local` com as credenciais do projecto Supabase:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+```
+
+Obter em: [Supabase Dashboard → Settings → API](https://supabase.com/dashboard)
+
+### 3. Aplicar schema da base de dados
+
+No Supabase SQL Editor, executar o conteúdo de `supabase-schema.sql`.
+
+### 4. Correr em desenvolvimento
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Comandos
 
-## Learn More
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Servidor de desenvolvimento |
+| `npm run build` | Build de produção |
+| `npm run start` | Servidor de produção |
+| `npm run lint` | Verificação de ESLint |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estrutura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/                  → Páginas (App Router)
+│   ├── page.tsx          → Dashboard
+│   ├── login/            → Autenticação
+│   ├── membros/          → Lista, novo membro, perfil
+│   ├── pagamentos/       → Histórico de pagamentos
+│   └── planos/           → Gestão de planos
+├── components/
+│   ├── layout/           → AppShell, Sidebar, Header, MobileNav
+│   └── ui/               → Componentes base (Button, Card, Badge…)
+├── lib/
+│   ├── supabase/         → Clientes browser/server/middleware
+│   ├── types.ts          → Tipos TypeScript
+│   └── utils.ts          → Utilitários (formatCurrency, formatDate…)
+└── middleware.ts         → Protecção de rotas (Supabase Auth)
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O projecto faz deploy automático no **Vercel** a cada push para `main`.
+
+Configurar as mesmas variáveis de ambiente no painel do Vercel:
+`NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+
+---
+
+## Docs
+
+- `docs/PRD.md` — Product Requirements Document
+- `docs/adr/ADR-001-stack-tecnologica.md` — Decisão de stack
+- `supabase-schema.sql` — Schema completo da base de dados
+- `SKILLS/ARCHITECTURE.md` — Mapa de skills e arquitectura de agentes
+- `SKILLS/SECURITY.md` — Guia de segurança
