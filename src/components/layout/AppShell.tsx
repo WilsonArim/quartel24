@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastProvider>
-      <div className="flex h-screen bg-quartel-950">
+      <div className="flex h-screen dark:bg-quartel-950 bg-[#f0f2f5]">
         {/* Sidebar desktop */}
         <Sidebar />
 
