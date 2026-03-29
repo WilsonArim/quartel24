@@ -35,9 +35,10 @@ export default async function DashboardPage() {
       value: stats.total_members,
       icon: Users,
       color: 'text-blue-400',
-      bg: 'bg-blue-500/10',
-      gradient: 'from-blue-500/8 to-transparent',
+      bg: 'bg-blue-500/20',
+      gradient: 'from-blue-500/20 to-transparent',
       ring: 'hover:ring-1 hover:ring-blue-500/20',
+      topBorder: 'border-t-2 border-t-blue-500/70',
       href: '/membros?filtro=ativo',
     },
     {
@@ -45,9 +46,10 @@ export default async function DashboardPage() {
       value: stats.active_subscriptions,
       icon: CheckCircle,
       color: 'text-green-400',
-      bg: 'bg-green-500/10',
-      gradient: 'from-green-500/8 to-transparent',
+      bg: 'bg-green-500/20',
+      gradient: 'from-green-500/20 to-transparent',
       ring: 'hover:ring-1 hover:ring-green-500/20',
+      topBorder: 'border-t-2 border-t-green-500/70',
       href: '/membros?filtro=subscricao-ativa',
     },
     {
@@ -55,9 +57,10 @@ export default async function DashboardPage() {
       value: stats.expiring_soon,
       icon: AlertTriangle,
       color: 'text-yellow-400',
-      bg: 'bg-yellow-500/10',
-      gradient: 'from-yellow-500/8 to-transparent',
+      bg: 'bg-yellow-500/20',
+      gradient: 'from-yellow-500/20 to-transparent',
       ring: 'hover:ring-1 hover:ring-yellow-500/20',
+      topBorder: 'border-t-2 border-t-yellow-500/70',
       href: '/membros?filtro=a-expirar',
     },
     {
@@ -65,9 +68,10 @@ export default async function DashboardPage() {
       value: stats.expired,
       icon: XCircle,
       color: 'text-red-400',
-      bg: 'bg-red-500/10',
-      gradient: 'from-red-500/8 to-transparent',
+      bg: 'bg-red-500/20',
+      gradient: 'from-red-500/20 to-transparent',
       ring: 'hover:ring-1 hover:ring-red-500/20',
+      topBorder: 'border-t-2 border-t-red-500/70',
       href: '/membros?filtro=expirado',
     },
     {
@@ -75,9 +79,10 @@ export default async function DashboardPage() {
       value: formatCurrency(stats.revenue_this_month),
       icon: TrendingUp,
       color: 'text-accent',
-      bg: 'bg-accent/10',
-      gradient: 'from-accent/8 to-transparent',
+      bg: 'bg-accent/20',
+      gradient: 'from-accent/20 to-transparent',
       ring: 'hover:ring-1 hover:ring-accent/20',
+      topBorder: 'border-t-2 border-t-accent/70',
       href: '/pagamentos',
     },
     {
@@ -85,9 +90,10 @@ export default async function DashboardPage() {
       value: stats.payments_today,
       icon: CreditCard,
       color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      gradient: 'from-purple-500/8 to-transparent',
+      bg: 'bg-purple-500/20',
+      gradient: 'from-purple-500/20 to-transparent',
       ring: 'hover:ring-1 hover:ring-purple-500/20',
+      topBorder: 'border-t-2 border-t-purple-500/70',
       href: '/pagamentos',
     },
   ]
@@ -96,23 +102,23 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       {/* Cards de métricas com gradientes e stagger */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        {metricCards.map(({ label, value, icon: Icon, color, bg, gradient, ring, href }, i) => (
+        {metricCards.map(({ label, value, icon: Icon, color, bg, gradient, ring, href, topBorder }, i) => (
           <Link key={label} href={href} className={`group animate-fade-in-up stagger-${i + 1}`}>
             <Card
               variant="gradient"
-              className={`bg-gradient-to-br ${gradient} border-quartel-700/50 hover:border-quartel-600 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1 cursor-pointer ${ring}`}
+              className={`bg-gradient-to-br ${gradient} ${topBorder} border-quartel-700/50 hover:border-quartel-600 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1 cursor-pointer ${ring}`}
             >
               <div className="flex items-start justify-between">
-                <div className={`p-2.5 rounded-xl ${bg} ring-1 ring-white/5`}>
-                  <Icon className={`h-5 w-5 ${color}`} />
+                <div className={`p-3 rounded-xl ${bg} ring-1 ring-white/10`}>
+                  <Icon className={`h-6 w-6 ${color}`} />
                 </div>
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity text-quartel-500">
                   <ArrowUpRight className="h-4 w-4" />
                 </span>
               </div>
               <div className="mt-4">
-                <p className="text-2xl font-black text-white tracking-tight">{value}</p>
-                <p className="text-xs text-quartel-400 mt-0.5 font-medium">{label}</p>
+                <p className="text-4xl font-black text-white tracking-tight tabular-nums leading-none">{value}</p>
+                <p className="text-xs text-quartel-400 mt-1.5 font-medium">{label}</p>
               </div>
             </Card>
           </Link>
