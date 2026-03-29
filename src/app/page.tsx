@@ -124,44 +124,62 @@ export default async function DashboardPage() {
           />
         ) : (
           <div className="space-y-2">
-            {expiring.map((item) => (
-              <Link
-                key={item.subscription_id}
-                href={`/membros/${item.member_id}`}
-                className="flex items-center justify-between p-3 rounded-lg bg-quartel-900 hover:bg-quartel-700 transition-colors"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="shrink-0 w-8 h-8 rounded-full bg-quartel-700 flex items-center justify-center text-xs font-bold text-white">
-                    {item.first_name.charAt(0)}{item.last_name.charAt(0)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-white truncate">
-                      {item.first_name} {item.last_name}
-                    </p>
-                    <div className="flex items-center gap-1 flex-wrap mt-0.5">
-                      <span className="text-xs text-quartel-400">{item.plan_name}</span>
-                      {item.modalities?.map((m) => (
-                        <span
-                          key={m}
-                          className={`inline-block h-1.5 w-1.5 rounded-full ${getModalityColor(m)}`}
-                          title={getModalityLabel(m)}
-                        />
-                      ))}
+            {expiring.map((item) => {
+              // 3 níveis de urgência visual
+              const urgencyBg =
+                item.days_remaining === 0
+                  ? 'bg-red-500/15 border border-red-500/30'
+                  : item.days_remaining <= 3
+                  ? 'bg-orange-500/10 border border-orange-500/20'
+                  : 'bg-yellow-500/10'
+              const badgeColor: 'red' | 'orange' | 'yellow' =
+                item.days_remaining === 0 ? 'red' : item.days_remaining <= 3 ? 'orange' : 'yellow'
+
+              return (
+                <Link
+                  key={item.subscription_id}
+                  href={`/membros/${item.member_id}`}
+                  className={`flex items-center justify-between p-3 rounded-lg hover:bg-quartel-700 transition-colors ${urgencyBg}`}
+                >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="shrink-0 w-8 h-8 rounded-full bg-quartel-700 flex items-center justify-center text-xs font-bold text-white">
+                        {item.first_name.charAt(0)}{item.last_name.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-white truncate">
+                          {item.first_name} {item.last_name}
+                        </p>
+                        <div className="flex items-center gap-1 flex-wrap mt-0.5">
+                          <span className="text-xs text-quartel-400">{item.plan_name}</span>
+                          {item.modalities?.map((m) => (
+                            <span
+                              key={m}
+                              className={`inline-block h-1.5 w-1.5 rounded-full ${getModalityColor(m)}`}
+                              title={getModalityLabel(m)}
+                            />
+                          ))}
+                        </div>
+                        {item.phone && (
+                          <a
+                            href={`tel:${item.phone}`}
+                            className="text-xs text-accent hover:underline mt-0.5 inline-block"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {item.phone}
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="text-right shrink-0 ml-4">
-                  <p className="text-xs text-quartel-400">Expira em</p>
-                  <p className="text-sm font-medium text-white">{formatDate(item.end_date)}</p>
-                  <Badge
-                    color={item.days_remaining === 0 ? 'red' : 'yellow'}
-                    size="sm"
-                  >
-                    {item.days_remaining === 0 ? 'hoje' : `${item.days_remaining}d`}
-                  </Badge>
-                </div>
-              </Link>
-            ))}
+                    <div className="text-right shrink-0 ml-4">
+                      <p className="text-xs text-quartel-400">Expira em</p>
+                      <p className="text-sm font-medium text-white">{formatDate(item.end_date)}</p>
+                      <Badge color={badgeColor} size="sm">
+                        {item.days_remaining === 0 ? 'hoje' : `${item.days_remaining}d`}
+                      </Badge>
+                    </div>
+                </Link>
+              )
+            })}
           </div>
         )}
       </Card>
