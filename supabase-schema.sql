@@ -37,13 +37,18 @@ CREATE TABLE subscription_plans (
 CREATE TABLE members (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
+  -- Ficha de inscrição
+  member_number INTEGER,
+  enrollment_date DATE,
+  has_insurance BOOLEAN NOT NULL DEFAULT false,
+
   -- Dados Básicos
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
   email TEXT,
   phone TEXT,
   date_of_birth DATE,
-  gender TEXT CHECK (gender IN ('M', 'F', 'Outro')),
+  gender TEXT CHECK (gender IN ('M', 'F')),
 
   -- Morada
   address TEXT,
@@ -59,6 +64,17 @@ CREATE TABLE members (
   allergies TEXT,
   emergency_contact_name TEXT,
   emergency_contact_phone TEXT,
+
+  -- Responsável (menores de idade)
+  guardian_name TEXT,
+  guardian_address TEXT,
+  guardian_city TEXT,
+  guardian_postal_code TEXT,
+  guardian_cc TEXT,
+  guardian_nif TEXT,
+  guardian_date_of_birth DATE,
+  guardian_phone TEXT,
+  guardian_email TEXT,
 
   -- Foto
   photo_url TEXT,
