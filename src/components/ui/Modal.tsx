@@ -38,19 +38,19 @@ function Modal({ open, onClose, title, children, footer, className }: ModalProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop com animação */}
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-fade-in"
+        className="absolute inset-0 dark:bg-black/80 bg-black/40 backdrop-blur-md animate-fade-in"
         onClick={onClose}
       />
 
-      {/* Modal com scale-in */}
+      {/* Modal */}
       <div
         className={cn(
           'relative z-10 w-full max-w-lg rounded-2xl',
-          'bg-gradient-to-b from-quartel-800 to-quartel-900',
-          'border border-quartel-700/60',
-          'shadow-2xl shadow-black/60',
+          'dark:bg-gradient-to-b dark:from-quartel-800 dark:to-quartel-900 bg-white',
+          'dark:border-quartel-700/60 border-gray-200',
+          'shadow-[var(--shadow-modal)]',
           'max-h-[90vh] flex flex-col',
           'animate-scale-in',
           className
@@ -58,11 +58,11 @@ function Modal({ open, onClose, title, children, footer, className }: ModalProps
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-quartel-700/50 shrink-0">
-            <h2 className="text-base font-bold text-white">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b dark:border-quartel-700/50 border-gray-200 shrink-0">
+            <h2 className="text-base font-bold dark:text-white text-gray-900">{title}</h2>
             <button
               onClick={onClose}
-              className="text-quartel-500 hover:text-white p-1.5 rounded-lg hover:bg-quartel-700 transition-colors cursor-pointer"
+              className="dark:text-quartel-500 dark:hover:text-white dark:hover:bg-quartel-700 text-gray-400 hover:text-gray-900 hover:bg-gray-100 p-1.5 rounded-lg transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -76,7 +76,7 @@ function Modal({ open, onClose, title, children, footer, className }: ModalProps
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-quartel-700/50 shrink-0">
+          <div className="px-6 py-4 border-t dark:border-quartel-700/50 border-gray-200 shrink-0">
             {footer}
           </div>
         )}
