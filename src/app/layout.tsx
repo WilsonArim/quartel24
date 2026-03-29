@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
+import { cookies } from 'next/headers'
 import './globals.css'
 import { AppShell } from '@/components/layout/AppShell'
 
@@ -8,29 +8,15 @@ export const metadata: Metadata = {
   description: 'Gestão de membros, subscrições e pagamentos do Quartel.24',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Ler tema do cookie no servidor — sem flash, sem script client-side
+  const cookieStore = await cookies()
+  const theme = cookieStore.get('quartel-theme')?.value
+  const isDark = theme !== 'light'
+
   return (
-    <html lang="pt" className="dark" suppressHydrationWarning>
+    <html lang="pt" className={isDark ? 'dark' : ''} suppressHydrationWarning>
       <body className="antialiased">
-        {/* Script anti-flash: aplica o tema guardado antes do primeiro paint */}
-        <Script
-          id="theme-anti-flash"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('quartel-theme');
-                  if (theme === 'light') {
-                    document.documentElement.classList.remove('dark');
-                  } else {
-                    document.documentElement.classList.add('dark');
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
         <AppShell>{children}</AppShell>
       </body>
     </html>
