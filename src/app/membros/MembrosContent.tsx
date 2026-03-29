@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import {
   getSubscriptionStatusLabel, getModalityLabel, getModalityColor, formatDate
 } from '@/lib/utils'
-import { Users, Search, Plus, Phone } from 'lucide-react'
+import { Users, Search, Plus, Phone, AlertTriangle, X } from 'lucide-react'
 import Link from 'next/link'
 import type { MemberWithSubscription } from '@/lib/types'
 
@@ -21,7 +21,7 @@ const statusOptions = [
   { value: 'expirado', label: 'Subscrição expirada' },
 ]
 
-export default function MembrosContent({ initialMembers }: { initialMembers: MemberWithSubscription[] }) {
+export default function MembrosContent({ initialMembers, hasPlans }: { initialMembers: MemberWithSubscription[]; hasPlans: boolean }) {
   const searchParams = useSearchParams()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('filtro') ?? 'todos')
@@ -82,20 +82,50 @@ export default function MembrosContent({ initialMembers }: { initialMembers: Mem
         </div>
       </div>
 
+      {/* Contagem e chip de filtro activo */}
+      {(statusFilter !== 'todos' || search) && (
+        <div className="flex items-center gap-2 text-sm text-quartel-400">
+          <span>{filtered.length} resultado{filtered.length !== 1 ? 's' : ''}</span>
+          <button
+            onClick={() => { setSearch(''); setStatusFilter('todos') }}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-quartel-700 text-quartel-300 hover:bg-quartel-600 text-xs cursor-pointer"
+          >
+            Limpar filtros <X className="h-3 w-3" />
+          </button>
+        </div>
+      )}
+
       {/* Lista */}
       {filtered.length === 0 ? (
-        <EmptyState
-          icon={<Users className="h-12 w-12" />}
-          title="Nenhum membro encontrado"
-          description={search ? 'Tenta uma pesquisa diferente.' : 'Adiciona o primeiro membro.'}
-          action={
-            !search ? (
-              <Link href="/membros/novo">
-                <Button size="sm"><Plus className="h-4 w-4" />Novo Membro</Button>
+        search || statusFilter !== 'todos' ? (
+          <EmptyState
+            icon={<Users className="h-12 w-12" />}
+            title="Nenhum membro encontrado"
+            description="Tenta uma pesquisa diferente."
+          />
+        ) : initialMembers.length === 0 && !hasPlans ? (
+          <EmptyState
+            icon={<AlertTriangle className="h-12 w-12 text-yellow-400" />}
+            title="Começa pelos planos"
+            description="Antes de registar membros, cria os planos de subscrição disponíveis."
+            action={
+              <Link href="/planos">
+                <Button size="sm">Ir para Planos</Button>
               </Link>
-            ) : undefined
-          }
-        />
+            }
+          />
+        ) : (
+          <EmptyState
+            icon={<Users className="h-12 w-12" />}
+            title="Nenhum membro registado"
+            description="Regista o primeiro membro do Quartel.24."
+            action={
+              <Link href="/membros/novo">
+                <Button size="sm"><Plus className="h-4 w-4" />Registar membro</Button>
+              </Link>
+            }
+          />
+        )
       ) : (
         <>
           {/* Desktop: tabela */}
@@ -131,7 +161,13 @@ export default function MembrosContent({ initialMembers }: { initialMembers: Mem
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-quartel-300">{member.phone ?? '—'}</td>
+                      <td className="px-4 py-3 text-quartel-300">
+                        {member.phone ? (
+                          <a href={`tel:${member.phone}`} className="text-accent hover:underline" onClick={(e) => e.stopPropagation()}>
+                            {member.phone}
+                          </a>
+                        ) : '—'}
+                      </td>
                       <td className="px-4 py-3 text-quartel-300">{sub?.plan?.name ?? '—'}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-1 flex-wrap">
@@ -181,9 +217,13 @@ export default function MembrosContent({ initialMembers }: { initialMembers: Mem
                     <p className="font-medium text-white">{member.first_name} {member.last_name}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       {member.phone && (
-                        <span className="text-xs text-quartel-400 flex items-center gap-1">
+                        <a
+                          href={`tel:${member.phone}`}
+                          className="text-xs text-accent hover:underline flex items-center gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Phone className="h-3 w-3" />{member.phone}
-                        </span>
+                        </a>
                       )}
                     </div>
                   </div>

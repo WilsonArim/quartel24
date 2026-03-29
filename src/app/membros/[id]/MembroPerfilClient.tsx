@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useToast } from '@/lib/toast'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
@@ -46,6 +47,7 @@ export default function MembroPerfilClient({
   initialPlans,
 }: Props) {
   const router = useRouter()
+  const { showToast } = useToast()
 
   const [member, setMember] = useState<Member>(initialMember)
   const [subscription, setSubscription] = useState<SubscriptionWithPlan | null>(initialSubscription)
@@ -114,6 +116,7 @@ export default function MembroPerfilClient({
     await fetchData()
     setEditOpen(false)
     setEditLoading(false)
+    showToast('Dados do membro actualizados')
   }
 
   async function handleSubSubmit() {
@@ -141,6 +144,7 @@ export default function MembroPerfilClient({
     await fetchData()
     setSubOpen(false)
     setSubLoading(false)
+    showToast('Subscrição atribuída com sucesso')
   }
 
   async function handlePaySubmit() {
@@ -178,6 +182,7 @@ export default function MembroPerfilClient({
     await fetchData()
     setPayOpen(false)
     setPayLoading(false)
+    showToast('Pagamento registado com sucesso')
   }
 
   const subStatus = subscription ? getSubscriptionStatusLabel(subscription.end_date) : null
@@ -204,7 +209,11 @@ export default function MembroPerfilClient({
               </Badge>
             </div>
             <div className="flex flex-wrap gap-3 mt-2 text-sm text-quartel-400">
-              {member.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{member.phone}</span>}
+              {member.phone && (
+                <a href={`tel:${member.phone}`} className="flex items-center gap-1 text-accent hover:underline">
+                  <Phone className="h-3 w-3" />{member.phone}
+                </a>
+              )}
               {member.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{member.email}</span>}
             </div>
           </div>
