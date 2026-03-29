@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind v4: usar classe .dark em vez de prefers-color-scheme */
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Paleta Quartel — escura/militar */
   --color-quartel-50: #f0f1f5;
