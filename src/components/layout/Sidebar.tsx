@@ -63,11 +63,11 @@ export function Sidebar() {
               className={cn(
                 'relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                 isActive
-                  ? 'bg-quartel-700/80 text-white nav-active-indicator'
+                  ? 'bg-quartel-700 text-white nav-active-indicator shadow-lg shadow-black/20'
                   : 'text-quartel-400 hover:bg-quartel-800/80 hover:text-quartel-100 hover:translate-x-0.5'
               )}
             >
-              <Icon className={cn('h-[18px] w-[18px] shrink-0', isActive ? 'text-accent' : '')} />
+              <Icon className={cn('h-[18px] w-[18px] shrink-0 transition-none', isActive ? 'text-accent drop-shadow-[0_0_6px_rgba(230,57,70,0.6)]' : '')} />
               {label}
               {isActive && (
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-accent animate-pulse-glow" />
