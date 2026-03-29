@@ -195,18 +195,30 @@ export default function MembroPerfilClient({
         Voltar aos membros
       </Link>
 
-      {/* Header do perfil */}
-      <div className="bg-quartel-800 border border-quartel-700 rounded-xl p-5">
-        <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-full bg-quartel-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
+      {/* Hero do perfil */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-quartel-800 via-quartel-800 to-quartel-900 border border-quartel-700/50 p-6">
+        {/* Background decorativo */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/3 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-8 -left-8 w-48 h-48 bg-quartel-700/20 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* Avatar grande */}
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-quartel-600 to-quartel-700 flex items-center justify-center text-2xl font-black text-white ring-2 ring-quartel-600 shrink-0">
             {getInitials(member.first_name, member.last_name)}
           </div>
+
+          {/* Nome + estado */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl font-bold text-white">{member.first_name} {member.last_name}</h2>
-              <Badge color={member.is_active ? 'green' : 'red'} size="sm">
+            <h1 className="text-2xl font-black text-white tracking-tight">
+              {member.first_name} {member.last_name}
+            </h1>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <Badge color={member.is_active ? 'green' : 'gray'} size="sm">
                 {member.is_active ? 'Ativo' : 'Inativo'}
               </Badge>
+              {subStatus && (
+                <Badge color={subStatus.color} size="sm">{subStatus.label}</Badge>
+              )}
             </div>
             <div className="flex flex-wrap gap-3 mt-2 text-sm text-quartel-400">
               {member.phone && (
@@ -217,19 +229,17 @@ export default function MembroPerfilClient({
               {member.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{member.email}</span>}
             </div>
           </div>
+
           {/* Botões de ação */}
-          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-            <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
-              <Edit className="h-4 w-4" />
-              Editar
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+              <Edit className="h-3.5 w-3.5" /> Editar
             </Button>
             <Button size="sm" onClick={() => setSubOpen(true)}>
-              <Plus className="h-4 w-4" />
-              Subscrição
+              <Plus className="h-3.5 w-3.5" /> Subscrição
             </Button>
             <Button variant="secondary" size="sm" onClick={openPayModal}>
-              <CreditCard className="h-4 w-4" />
-              Pagamento
+              <CreditCard className="h-3.5 w-3.5" /> Pagamento
             </Button>
           </div>
         </div>

@@ -148,7 +148,7 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
                   return (
                     <tr
                       key={member.id}
-                      className="hover:bg-quartel-700/30 cursor-pointer transition-colors"
+                      className="group relative hover:bg-quartel-800/60 hover:shadow-md transition-all duration-150 cursor-pointer"
                       onClick={() => window.location.href = `/membros/${member.id}`}
                     >
                       <td className="px-4 py-3">
@@ -204,11 +204,16 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
             {filtered.map((member) => {
               const sub = member.subscription
               const status = sub ? getSubscriptionStatusLabel(sub.end_date) : null
+              const borderColor =
+                status?.color === 'green' ? 'border-l-green-500/50' :
+                status?.color === 'yellow' ? 'border-l-yellow-500/50' :
+                status?.color === 'red' ? 'border-l-red-500/50' :
+                'border-l-quartel-700'
               return (
                 <Link
                   key={member.id}
                   href={`/membros/${member.id}`}
-                  className="flex items-center gap-3 p-4 bg-quartel-800 border border-quartel-700 rounded-xl hover:bg-quartel-700/50 transition-colors"
+                  className={`flex items-center gap-3 border-l-2 rounded-xl bg-quartel-800/60 p-4 hover:bg-quartel-700/60 transition-all ${borderColor}`}
                 >
                   <div className="w-10 h-10 rounded-full bg-quartel-700 flex items-center justify-center text-sm font-bold text-white shrink-0">
                     {member.first_name.charAt(0)}{member.last_name.charAt(0)}
