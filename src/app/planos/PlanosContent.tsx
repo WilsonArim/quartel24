@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useToast } from '@/lib/toast'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -45,6 +46,8 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
   const [form, setForm] = useState<PlanForm>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [confirmPlan, setConfirmPlan] = useState<SubscriptionPlan | null>(null)
+  const { showToast } = useToast()
 
   async function fetchPlans() {
     const supabase = createClient()
@@ -122,12 +125,25 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
     await fetchPlans()
     setModalOpen(false)
     setSaving(false)
+    showToast(editingPlan ? 'Plano actualizado' : 'Plano criado com sucesso')
+  }
+
+  function handleToggleClick(plan: SubscriptionPlan) {
+    if (plan.is_active) {
+      // Desativar requer confirmação
+      setConfirmPlan(plan)
+    } else {
+      // Ativar não precisa de confirmação
+      toggleActive(plan)
+    }
   }
 
   async function toggleActive(plan: SubscriptionPlan) {
     const supabase = createClient()
     await supabase.from('subscription_plans').update({ is_active: !plan.is_active }).eq('id', plan.id)
     await fetchPlans()
+    setConfirmPlan(null)
+    showToast(plan.is_active ? 'Plano desativado' : 'Plano ativado')
   }
 
   const activePlans = plans.filter((p) => p.is_active)
@@ -148,14 +164,15 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
         <EmptyState
           icon={<ClipboardList className="h-12 w-12" />}
           title="Nenhum plano criado"
-          action={<Button size="sm" onClick={openNew}><Plus className="h-4 w-4" />Criar Plano</Button>}
+          description="Começa por criar os planos de subscrição do Quartel.24 — Ginásio, BJJ, MMA."
+          action={<Button size="sm" onClick={openNew}><Plus className="h-4 w-4" />Criar primeiro plano</Button>}
         />
       ) : (
         <>
           {/* Planos ativos */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {activePlans.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onToggle={toggleActive} />
+              <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onToggle={handleToggleClick} />
             ))}
           </div>
 
@@ -165,13 +182,30 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
               <h3 className="text-xs font-semibold text-quartel-500 uppercase tracking-wide mb-3">Planos Inativos</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 opacity-60">
                 {inactivePlans.map((plan) => (
-                  <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onToggle={toggleActive} />
+                  <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onToggle={handleToggleClick} />
                 ))}
               </div>
             </div>
           )}
         </>
       )}
+
+      {/* Modal confirmação desativar plano */}
+      <Modal
+        open={!!confirmPlan}
+        onClose={() => setConfirmPlan(null)}
+        title="Desativar plano?"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setConfirmPlan(null)} autoFocus>Cancelar</Button>
+            <Button variant="danger" onClick={() => confirmPlan && toggleActive(confirmPlan)}>Desativar</Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-quartel-300">
+          O plano <strong className="text-white">{confirmPlan?.name}</strong> ficará indisponível para novas subscrições. Subscrições activas existentes não são afectadas.
+        </p>
+      </Modal>
 
       {/* Modal criar/editar plano */}
       <Modal

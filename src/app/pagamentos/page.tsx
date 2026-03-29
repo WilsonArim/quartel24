@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatCurrency, formatDate, getPaymentMethodLabel } from '@/lib/utils'
+import { Button } from '@/components/ui/Button'
 import { CreditCard } from 'lucide-react'
 import Link from 'next/link'
 
@@ -60,7 +61,12 @@ export default async function PagamentosPage() {
           <EmptyState
             icon={<CreditCard className="h-12 w-12" />}
             title="Nenhum pagamento registado"
-            description="Os pagamentos aparecerão aqui quando registares o primeiro."
+            description="Os pagamentos são registados no perfil de cada membro."
+            action={
+              <Link href="/membros">
+                <Button size="sm">Ver membros</Button>
+              </Link>
+            }
           />
         ) : (
           <>
