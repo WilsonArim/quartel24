@@ -222,13 +222,12 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
                     <p className="font-medium text-white">{member.first_name} {member.last_name}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       {member.phone && (
-                        <a
-                          href={`tel:${member.phone}`}
-                          className="text-xs text-accent hover:underline flex items-center gap-1"
-                          onClick={(e) => e.stopPropagation()}
+                        <button
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${member.phone}` }}
+                          className="text-xs text-accent hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Phone className="h-3 w-3" />{member.phone}
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>

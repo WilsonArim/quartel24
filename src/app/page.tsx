@@ -182,13 +182,12 @@ export default async function DashboardPage() {
                         ))}
                       </div>
                       {item.phone && (
-                        <a
-                          href={`tel:${item.phone}`}
-                          className="text-xs text-accent hover:underline mt-0.5 inline-block"
-                          onClick={(e) => e.stopPropagation()}
+                        <button
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${item.phone}` }}
+                          className="text-xs text-accent hover:underline mt-0.5 inline-block cursor-pointer"
                         >
                           {item.phone}
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>
