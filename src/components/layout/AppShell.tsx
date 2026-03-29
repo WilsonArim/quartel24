@@ -4,6 +4,8 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { MobileNav } from './MobileNav'
 import { MobileDrawer } from './MobileDrawer'
+import { ToastProvider } from '@/lib/toast'
+import { ToastContainer } from '@/components/ui/Toast'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
@@ -26,23 +28,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen bg-quartel-950">
-      {/* Sidebar desktop */}
-      <Sidebar />
+    <ToastProvider>
+      <div className="flex h-screen bg-quartel-950">
+        {/* Sidebar desktop */}
+        <Sidebar />
 
-      {/* Conteúdo principal */}
-      <div className="flex-1 flex flex-col lg:ml-64 min-h-screen">
-        <Header onMenuClick={() => setDrawerOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 pb-20 lg:pb-6">
-          {children}
-        </main>
+        {/* Conteúdo principal */}
+        <div className="flex-1 flex flex-col lg:ml-64 min-h-screen">
+          <Header onMenuClick={() => setDrawerOpen(true)} />
+          <main className="flex-1 overflow-y-auto p-4 lg:p-6 pb-20 lg:pb-6">
+            {children}
+          </main>
+        </div>
+
+        {/* Nav mobile bottom */}
+        <MobileNav />
+
+        {/* Drawer mobile/tablet */}
+        <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+
+        {/* Toast notifications */}
+        <ToastContainer />
       </div>
-
-      {/* Nav mobile bottom */}
-      <MobileNav />
-
-      {/* Drawer mobile/tablet */}
-      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-    </div>
+    </ToastProvider>
   )
 }
