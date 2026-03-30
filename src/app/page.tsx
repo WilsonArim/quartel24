@@ -108,10 +108,10 @@ export default async function DashboardPage() {
           <Link key={label} href={href} className={`group animate-fade-in-up stagger-${i + 1}`}>
             <Card
               variant="gradient"
-              className={`bg-gradient-to-br ${gradient} ${topBorder} border-quartel-700/50 hover:border-quartel-600 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1 cursor-pointer ${ring}`}
+              className={`bg-gradient-to-br ${gradient} ${topBorder} dark:border-quartel-700 border-gray-200 dark:hover:border-quartel-600 hover:border-gray-300 hover:shadow-xl dark:hover:shadow-black/40 hover:shadow-black/10 hover:-translate-y-1 cursor-pointer ${ring}`}
             >
               <div className="flex items-start justify-between">
-                <div className={`p-3 rounded-xl ${bg} ring-1 ring-white/10`}>
+                <div className={`p-3 rounded-xl ${bg} ring-1 dark:ring-white/10 ring-black/5`}>
                   <Icon className={`h-6 w-6 ${color}`} />
                 </div>
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity text-quartel-500">
@@ -137,7 +137,7 @@ export default async function DashboardPage() {
               <div className="p-1.5 rounded-lg bg-yellow-500/10">
                 <Bell className="h-4 w-4 text-yellow-400" />
               </div>
-              <h2 className="text-sm font-semibold text-white">
+              <h2 className="text-sm font-semibold dark:text-white text-gray-900">
                 Subscrições a Expirar
               </h2>
             </div>

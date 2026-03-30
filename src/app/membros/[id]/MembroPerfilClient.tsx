@@ -15,7 +15,7 @@ import {
   formatDate, formatDateLong, formatCurrency, calculateEndDate,
   getPaymentMethodLabel, getInitials
 } from '@/lib/utils'
-import { ArrowLeft, Edit, Plus, CreditCard, Phone, Mail, MapPin, FileText, Heart } from 'lucide-react'
+import { ArrowLeft, Edit, Plus, CreditCard, Phone, Mail, MapPin, FileText, Heart, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import type { Member, SubscriptionPlan, Subscription, Payment } from '@/lib/types'
 
@@ -71,6 +71,10 @@ export default function MembroPerfilClient({
   // Formulário registo de pagamento
   const [payForm, setPayForm] = useState({ amount: '', payment_date: new Date().toISOString().split('T')[0], payment_method: 'cash', notes: '', renewSub: false, renewStartDate: new Date().toISOString().split('T')[0] })
   const [payLoading, setPayLoading] = useState(false)
+
+  // Eliminação de pagamento
+  const [deletePayId, setDeletePayId] = useState<string | null>(null)
+  const [deletePayLoading, setDeletePayLoading] = useState(false)
 
   // Refetch — chamado apenas de event handlers, nunca de effects
   async function fetchData() {
@@ -170,7 +174,7 @@ export default function MembroPerfilClient({
       activeSubId = newSub?.id ?? null
     }
 
-    await supabase.from('payments').insert({
+    const { error } = await supabase.from('payments').insert({
       member_id: id,
       subscription_id: activeSubId,
       amount: parseFloat(payForm.amount),
@@ -179,10 +183,31 @@ export default function MembroPerfilClient({
       notes: payForm.notes || null,
     })
 
+    if (error) {
+      showToast('Erro ao registar pagamento', 'error')
+      setPayLoading(false)
+      return
+    }
+
     await fetchData()
     setPayOpen(false)
     setPayLoading(false)
     showToast('Pagamento registado com sucesso')
+  }
+
+  async function handleDeletePayment() {
+    if (!deletePayId) return
+    setDeletePayLoading(true)
+    const supabase = createClient()
+    const { error } = await supabase.from('payments').delete().eq('id', deletePayId)
+    if (error) {
+      showToast('Erro ao eliminar pagamento', 'error')
+    } else {
+      await fetchData()
+      showToast('Pagamento eliminado')
+    }
+    setDeletePayId(null)
+    setDeletePayLoading(false)
   }
 
   const subStatus = subscription ? getSubscriptionStatusLabel(subscription.end_date) : null
@@ -319,15 +344,25 @@ export default function MembroPerfilClient({
                 <th className="pb-2 text-left text-xs text-quartel-500">Valor</th>
                 <th className="pb-2 text-left text-xs text-quartel-500">Método</th>
                 <th className="pb-2 text-left text-xs text-quartel-500 hidden sm:table-cell">Notas</th>
+                <th className="pb-2 w-8" />
               </tr>
             </thead>
             <tbody className="divide-y divide-quartel-800">
               {payments.map((p) => (
-                <tr key={p.id}>
+                <tr key={p.id} className="group">
                   <td className="py-2.5 text-quartel-300">{formatDate(p.payment_date)}</td>
                   <td className="py-2.5 font-medium text-white">{formatCurrency(p.amount)}</td>
                   <td className="py-2.5 text-quartel-300">{getPaymentMethodLabel(p.payment_method)}</td>
                   <td className="py-2.5 text-quartel-500 hidden sm:table-cell">{p.notes ?? '—'}</td>
+                  <td className="py-2.5 text-right">
+                    <button
+                      onClick={() => setDeletePayId(p.id)}
+                      className="opacity-0 group-hover:opacity-100 p-1 rounded text-quartel-600 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                      title="Eliminar pagamento"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -395,6 +430,26 @@ export default function MembroPerfilClient({
             </p>
           )}
         </div>
+      </Modal>
+
+      {/* Modal: Confirmar eliminação de pagamento */}
+      <Modal
+        open={!!deletePayId}
+        onClose={() => setDeletePayId(null)}
+        title="Eliminar Pagamento"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setDeletePayId(null)} autoFocus>Cancelar</Button>
+            <Button variant="secondary" onClick={handleDeletePayment} loading={deletePayLoading}
+              className="!bg-red-500/15 !text-red-400 !border-red-500/30 hover:!bg-red-500/25">
+              Eliminar
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm dark:text-quartel-300 text-gray-600">
+          Tens a certeza que queres eliminar este pagamento? Esta acção não pode ser revertida.
+        </p>
       </Modal>
 
       {/* Modal: Registar Pagamento */}

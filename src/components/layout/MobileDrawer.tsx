@@ -43,21 +43,21 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
       {/* Drawer */}
       <aside
         className={cn(
-          'lg:hidden fixed top-0 left-0 z-50 h-full w-72 bg-quartel-900 border-r border-quartel-800 flex flex-col transition-transform duration-300',
+          'lg:hidden fixed top-0 left-0 z-50 h-full w-72 dark:bg-quartel-900 bg-white border-r dark:border-quartel-800 border-gray-200 flex flex-col transition-transform duration-300',
           open ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         {/* Header do drawer */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-quartel-800">
+        <div className="flex items-center justify-between px-4 py-4 border-b dark:border-quartel-800 border-gray-200">
           <Link href="/" className="flex items-center gap-3" onClick={onClose}>
             <Image src="/quartel24.jpg" alt="Quartel.24" width={36} height={36} className="rounded-lg object-cover" />
-            <span className="text-base font-black tracking-widest text-white uppercase">
+            <span className="text-base font-black tracking-widest dark:text-white text-gray-900 uppercase">
               Quartel<span className="text-accent">.24</span>
             </span>
           </Link>
           <button
             onClick={onClose}
-            className="text-quartel-400 hover:text-white p-1 cursor-pointer"
+            className="dark:text-quartel-400 text-gray-500 dark:hover:text-white hover:text-gray-900 p-1 cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -74,8 +74,8 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-quartel-700 text-white border-l-2 border-accent pl-[10px]'
-                    : 'text-quartel-400 hover:bg-quartel-800 hover:text-white'
+                    ? 'dark:bg-quartel-700 bg-gray-100 dark:text-white text-gray-900 border-l-2 border-accent pl-[10px]'
+                    : 'dark:text-quartel-400 text-gray-500 dark:hover:bg-quartel-800 hover:bg-gray-100 dark:hover:text-white hover:text-gray-900'
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -86,10 +86,10 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
         </nav>
 
         {/* Sair */}
-        <div className="px-3 py-4 border-t border-quartel-800">
+        <div className="px-3 py-4 border-t dark:border-quartel-800 border-gray-200">
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-quartel-400 hover:bg-quartel-800 hover:text-white transition-colors cursor-pointer"
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium dark:text-quartel-400 text-gray-500 hover:bg-red-500/10 hover:text-red-400 transition-colors cursor-pointer"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             Sair

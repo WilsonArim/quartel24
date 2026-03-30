@@ -13,7 +13,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const variantStyles: Record<CardVariant, string> = {
   default: 'dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 hover:dark:border-quartel-600 hover:border-gray-300 shadow-[var(--shadow-card)] transition-all duration-200',
   glass: 'glass border border-white/5',
-  gradient: 'dark:bg-gradient-to-br dark:from-quartel-800 dark:to-quartel-900 bg-white dark:border-quartel-700/50 border-gray-200/80 shadow-[var(--shadow-card)]',
+  gradient: 'dark:bg-gradient-to-br dark:from-quartel-800 dark:to-quartel-900 bg-white dark:border-quartel-700 border-gray-200/80 shadow-[var(--shadow-card)]',
   accent: 'bg-gradient-to-br from-accent/10 to-quartel-800 border border-accent/20',
 }
 
