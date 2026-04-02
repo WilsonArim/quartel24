@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import {
   getSubscriptionStatusLabel, getModalityLabel, getModalityColor, formatDate
 } from '@/lib/utils'
-import { Users, Search, Plus, Phone, AlertTriangle, X } from 'lucide-react'
+import { Users, Search, Plus, Phone, AlertTriangle, X, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
 import Link from 'next/link'
 import type { MemberWithSubscription } from '@/lib/types'
 
@@ -21,34 +21,108 @@ const statusOptions = [
   { value: 'expirado', label: 'Subscrição expirada' },
 ]
 
+type SortCol = 'member_number' | 'nome' | 'estado' | 'expira'
+type SortDir = 'asc' | 'desc'
+
+function SortHeader({
+  label, col, current, dir, onSort,
+}: {
+  label: string
+  col: SortCol
+  current: SortCol
+  dir: SortDir
+  onSort: (col: SortCol) => void
+}) {
+  const active = current === col
+  return (
+    <th
+      className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider cursor-pointer select-none group"
+      onClick={() => onSort(col)}
+    >
+      <div className="flex items-center gap-1.5">
+        {label}
+        <span className={`transition-colors ${active ? 'text-accent' : 'dark:text-quartel-600 text-gray-300 group-hover:text-quartel-400'}`}>
+          {active ? (
+            dir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+          ) : (
+            <ArrowUpDown className="h-3 w-3" />
+          )}
+        </span>
+      </div>
+    </th>
+  )
+}
+
 export default function MembrosContent({ initialMembers, hasPlans }: { initialMembers: MemberWithSubscription[]; hasPlans: boolean }) {
   const searchParams = useSearchParams()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('filtro') ?? 'todos')
+  const [sortCol, setSortCol] = useState<SortCol>('member_number')
+  const [sortDir, setSortDir] = useState<SortDir>('asc')
 
-  // Filtro client-side sobre dados do servidor
-  const filtered = initialMembers.filter((m) => {
-    const q = search.toLowerCase()
-    const matchSearch =
-      !q ||
-      m.first_name.toLowerCase().includes(q) ||
-      m.last_name.toLowerCase().includes(q) ||
-      m.email?.toLowerCase().includes(q) ||
-      m.phone?.includes(q) ||
-      m.nif?.includes(q)
+  function handleSort(col: SortCol) {
+    if (sortCol === col) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortCol(col)
+      setSortDir('asc')
+    }
+  }
 
-    const sub = m.subscription
-    const subStatus = sub ? getSubscriptionStatusLabel(sub.end_date) : null
-    const matchStatus =
-      statusFilter === 'todos' ||
-      (statusFilter === 'ativo' && m.is_active) ||
-      (statusFilter === 'inativo' && !m.is_active) ||
-      (statusFilter === 'expirado' && sub?.status === 'expired') ||
-      (statusFilter === 'a-expirar' && subStatus?.color === 'yellow') ||
-      (statusFilter === 'subscricao-ativa' && sub?.status === 'active')
+  // Filtro client-side
+  const filtered = useMemo(() => {
+    const result = initialMembers.filter((m) => {
+      const q = search.toLowerCase()
+      const matchSearch =
+        !q ||
+        m.first_name.toLowerCase().includes(q) ||
+        m.last_name.toLowerCase().includes(q) ||
+        m.email?.toLowerCase().includes(q) ||
+        m.phone?.includes(q) ||
+        m.nif?.includes(q) ||
+        (m.member_number != null && String(m.member_number).includes(q))
 
-    return matchSearch && matchStatus
-  })
+      const sub = m.subscription
+      const subStatus = sub ? getSubscriptionStatusLabel(sub.end_date) : null
+      const matchStatus =
+        statusFilter === 'todos' ||
+        (statusFilter === 'ativo' && m.is_active) ||
+        (statusFilter === 'inativo' && !m.is_active) ||
+        (statusFilter === 'expirado' && sub?.status === 'expired') ||
+        (statusFilter === 'a-expirar' && subStatus?.color === 'yellow') ||
+        (statusFilter === 'subscricao-ativa' && sub?.status === 'active')
+
+      return matchSearch && matchStatus
+    })
+
+    // Ordenação
+    result.sort((a, b) => {
+      let cmp = 0
+      if (sortCol === 'member_number') {
+        // Nulls sempre no fim
+        if (a.member_number == null && b.member_number == null) cmp = 0
+        else if (a.member_number == null) cmp = 1
+        else if (b.member_number == null) cmp = -1
+        else cmp = a.member_number - b.member_number
+      } else if (sortCol === 'nome') {
+        cmp = `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`, 'pt')
+      } else if (sortCol === 'estado') {
+        const labelA = a.subscription ? getSubscriptionStatusLabel(a.subscription.end_date).label : 'Sem subscrição'
+        const labelB = b.subscription ? getSubscriptionStatusLabel(b.subscription.end_date).label : 'Sem subscrição'
+        cmp = labelA.localeCompare(labelB, 'pt')
+      } else if (sortCol === 'expira') {
+        const dateA = a.subscription?.end_date ?? ''
+        const dateB = b.subscription?.end_date ?? ''
+        if (!dateA && !dateB) cmp = 0
+        else if (!dateA) cmp = 1
+        else if (!dateB) cmp = -1
+        else cmp = dateA.localeCompare(dateB)
+      }
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+
+    return result
+  }, [initialMembers, search, statusFilter, sortCol, sortDir])
 
   return (
     <div className="space-y-4">
@@ -131,14 +205,15 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
           {/* Desktop: tabela */}
           <div className="hidden md:block dark:bg-quartel-800 bg-white dark:border-quartel-700 border-gray-200 rounded-xl overflow-hidden shadow-[var(--shadow-card)]">
             <table className="w-full text-sm">
-              <thead className="border-b border-quartel-700">
+              <thead className="border-b dark:border-quartel-700 border-gray-200">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Nome</th>
+                  <SortHeader label="Nº Sócio" col="member_number" current={sortCol} dir={sortDir} onSort={handleSort} />
+                  <SortHeader label="Nome" col="nome" current={sortCol} dir={sortDir} onSort={handleSort} />
                   <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Telefone</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Plano</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Modalidades</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Estado</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold dark:text-quartel-400 text-gray-500 uppercase tracking-wider">Expira em</th>
+                  <SortHeader label="Estado" col="estado" current={sortCol} dir={sortDir} onSort={handleSort} />
+                  <SortHeader label="Expira em" col="expira" current={sortCol} dir={sortDir} onSort={handleSort} />
                 </tr>
               </thead>
               <tbody className="divide-y dark:divide-quartel-800 divide-gray-100">
@@ -148,9 +223,16 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
                   return (
                     <tr
                       key={member.id}
-                      className="group relative hover:bg-quartel-800/60 hover:shadow-md transition-all duration-150 cursor-pointer"
+                      className="group relative dark:hover:bg-quartel-800/60 hover:bg-gray-50 hover:shadow-md transition-all duration-150 cursor-pointer"
                       onClick={() => window.location.href = `/membros/${member.id}`}
                     >
+                      <td className="px-4 py-3 dark:text-quartel-400 text-gray-400 font-mono text-xs">
+                        {member.member_number != null ? (
+                          <span className="dark:bg-quartel-700 bg-gray-100 px-2 py-0.5 rounded font-semibold dark:text-quartel-200 text-gray-600">
+                            #{member.member_number}
+                          </span>
+                        ) : '—'}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-quartel-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
@@ -219,7 +301,12 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
                     {member.first_name.charAt(0)}{member.last_name.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-white">{member.first_name} {member.last_name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">{member.first_name} {member.last_name}</p>
+                      {member.member_number != null && (
+                        <span className="text-xs text-quartel-500 font-mono">#{member.member_number}</span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       {member.phone && (
                         <button
