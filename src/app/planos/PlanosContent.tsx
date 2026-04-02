@@ -28,6 +28,7 @@ type PlanForm = {
   age_category: string
   duration_months: string
   price: string
+  is_internal: boolean
 }
 
 const emptyForm: PlanForm = {
@@ -37,6 +38,7 @@ const emptyForm: PlanForm = {
   age_category: 'adulto',
   duration_months: '1',
   price: '',
+  is_internal: false,
 }
 
 export default function PlanosContent({ initialPlans }: { initialPlans: SubscriptionPlan[] }) {
@@ -76,6 +78,7 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
       age_category: plan.age_category,
       duration_months: String(plan.duration_months),
       price: String(plan.price),
+      is_internal: plan.is_internal,
     })
     setErrors({})
     setModalOpen(true)
@@ -114,6 +117,7 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
       plan_type: form.modalities.length > 1 ? 'pack' : 'individual',
       duration_months: parseInt(form.duration_months),
       price: parseFloat(form.price),
+      is_internal: form.is_internal,
     }
 
     if (editingPlan) {
@@ -146,8 +150,9 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
     showToast(plan.is_active ? 'Plano desativado' : 'Plano ativado')
   }
 
-  const activePlans = plans.filter((p) => p.is_active)
-  const inactivePlans = plans.filter((p) => !p.is_active)
+  const activePlans = plans.filter((p) => p.is_active && !p.is_internal)
+  const internalPlans = plans.filter((p) => p.is_internal)
+  const inactivePlans = plans.filter((p) => !p.is_active && !p.is_internal)
 
   return (
     <div className="space-y-5">
@@ -175,6 +180,18 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
               <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onToggle={handleToggleClick} />
             ))}
           </div>
+
+          {/* Planos internos */}
+          {internalPlans.length > 0 && (
+            <div>
+              <h3 className="text-xs font-semibold text-amber-500/70 uppercase tracking-wide mb-3">Planos Internos</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {internalPlans.map((plan) => (
+                  <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onToggle={handleToggleClick} />
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Planos inativos */}
           {inactivePlans.length > 0 && (
@@ -297,6 +314,36 @@ export default function PlanosContent({ initialPlans }: { initialPlans: Subscrip
               placeholder="0.00"
             />
           </div>
+
+          {/* Plano Interno */}
+          <button
+            type="button"
+            onClick={() => setForm((p) => ({ ...p, is_internal: !p.is_internal }))}
+            className={`w-full flex items-start gap-3 rounded-lg border p-3 text-left transition-colors cursor-pointer ${
+              form.is_internal
+                ? 'border-amber-500/50 bg-amber-500/10'
+                : 'border-quartel-700 bg-quartel-900 hover:border-quartel-600'
+            }`}
+          >
+            {/* Toggle visual */}
+            <div className={`mt-0.5 h-4 w-4 shrink-0 rounded border-2 flex items-center justify-center transition-colors ${
+              form.is_internal ? 'border-amber-500 bg-amber-500' : 'border-quartel-600'
+            }`}>
+              {form.is_internal && (
+                <svg className="h-2.5 w-2.5 text-white" viewBox="0 0 10 8" fill="none">
+                  <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+            </div>
+            <div>
+              <p className={`text-sm font-medium ${form.is_internal ? 'text-amber-400' : 'dark:text-quartel-300 text-gray-600'}`}>
+                Plano interno
+              </p>
+              <p className="text-xs dark:text-quartel-500 text-gray-400 mt-0.5">
+                Para professores e isenções. Não aparece em pagamentos nem em relatórios de receita.
+              </p>
+            </div>
+          </button>
         </div>
       </Modal>
     </div>
@@ -316,9 +363,13 @@ function PlanCard({
     <div className="dark:bg-quartel-800/60 bg-white dark:border-quartel-700/50 border-gray-200 rounded-xl p-5 flex flex-col gap-3 shadow-[var(--shadow-card)]">
       <div className="flex items-start justify-between gap-2">
         <p className="font-semibold dark:text-white text-gray-900 leading-tight">{plan.name}</p>
-        <Badge color={plan.is_active ? 'green' : 'gray'} size="sm">
-          {plan.is_active ? 'Ativo' : 'Inativo'}
-        </Badge>
+        {plan.is_internal ? (
+          <Badge color="yellow" size="sm">Interno</Badge>
+        ) : (
+          <Badge color={plan.is_active ? 'green' : 'gray'} size="sm">
+            {plan.is_active ? 'Ativo' : 'Inativo'}
+          </Badge>
+        )}
       </div>
 
       {/* Modalidades */}

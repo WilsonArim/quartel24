@@ -10,22 +10,28 @@ export default async function PagamentosPage() {
   const supabase = await createClient()
 
   // Pagamentos com join a membros e planos
-  const { data: payments } = await supabase
+  const { data: rawPayments } = await supabase
     .from('payments')
     .select(`
       *,
       member:members!member_id(id, first_name, last_name),
       subscription:subscriptions!subscription_id(
-        plan:subscription_plans(name)
+        plan:subscription_plans(name, is_internal)
       )
     `)
     .order('payment_date', { ascending: false })
     .limit(200)
 
-  // Total do mês atual
+  // Excluir pagamentos de planos internos (professores, isenções)
+  const payments = (rawPayments ?? []).filter((p) => {
+    const plan = (p.subscription as { plan?: { is_internal?: boolean } } | null)?.plan
+    return !plan?.is_internal
+  })
+
+  // Total do mês atual (sem planos internos)
   const now = new Date()
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-  const monthPayments = (payments ?? []).filter((p) => p.payment_date >= firstOfMonth)
+  const monthPayments = payments.filter((p) => p.payment_date >= firstOfMonth)
   const monthTotal = monthPayments.reduce((sum, p) => sum + Number(p.amount), 0)
 
   const methodColors: Record<string, 'blue' | 'green' | 'purple' | 'yellow' | 'gray'> = {
@@ -86,7 +92,7 @@ export default async function PagamentosPage() {
                 <tbody className="divide-y divide-quartel-800">
                   {payments.map((p) => {
                     const member = p.member as { id: string; first_name: string; last_name: string } | null
-                    const planName = (p.subscription as { plan?: { name?: string } } | null)?.plan?.name
+                    const planName = (p.subscription as { plan?: { name?: string; is_internal?: boolean } } | null)?.plan?.name
                     return (
                       <tr key={p.id} className="hover:bg-quartel-700/30 transition-colors">
                         <td className="px-5 py-3 text-quartel-300">{formatDate(p.payment_date)}</td>
