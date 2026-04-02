@@ -219,7 +219,8 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
               <tbody className="divide-y dark:divide-quartel-800 divide-gray-100">
                 {filtered.map((member) => {
                   const sub = member.subscription
-                  const status = sub ? getSubscriptionStatusLabel(sub.end_date) : null
+                  const isInternal = sub?.plan?.is_internal ?? false
+                  const status = sub && !isInternal ? getSubscriptionStatusLabel(sub.end_date) : null
                   return (
                     <tr
                       key={member.id}
@@ -265,14 +266,16 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        {status ? (
+                        {isInternal ? (
+                          <Badge color="yellow" size="sm">Interno</Badge>
+                        ) : status ? (
                           <Badge color={status.color} size="sm">{status.label}</Badge>
                         ) : (
                           <Badge color="gray" size="sm">Sem subscrição</Badge>
                         )}
                       </td>
                       <td className="px-4 py-3 dark:text-quartel-300 text-gray-500">
-                        {sub ? formatDate(sub.end_date) : '—'}
+                        {sub && !isInternal ? formatDate(sub.end_date) : '—'}
                       </td>
                     </tr>
                   )
@@ -285,8 +288,10 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
           <div className="md:hidden space-y-3">
             {filtered.map((member) => {
               const sub = member.subscription
-              const status = sub ? getSubscriptionStatusLabel(sub.end_date) : null
+              const isInternal = sub?.plan?.is_internal ?? false
+              const status = sub && !isInternal ? getSubscriptionStatusLabel(sub.end_date) : null
               const borderColor =
+                isInternal ? 'border-l-yellow-500/50' :
                 status?.color === 'green' ? 'border-l-green-500/50' :
                 status?.color === 'yellow' ? 'border-l-yellow-500/50' :
                 status?.color === 'red' ? 'border-l-red-500/50' :
@@ -319,7 +324,9 @@ export default function MembrosContent({ initialMembers, hasPlans }: { initialMe
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    {status ? (
+                    {isInternal ? (
+                      <Badge color="yellow" size="sm">Interno</Badge>
+                    ) : status ? (
                       <Badge color={status.color} size="sm">{status.label}</Badge>
                     ) : (
                       <Badge color="gray" size="sm">Sem plano</Badge>
