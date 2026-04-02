@@ -54,6 +54,25 @@ export function calculateEndDate(startDate: string, durationMonths: number): str
   return format(end, 'yyyy-MM-dd')
 }
 
+// Calcula data de fim avançando ciclos até end_date >= hoje.
+// Útil para datas de início retroactivas: inscrição em Out/2025 com plano mensal
+// fica automaticamente válida até ao ciclo atual (ex: Abr/2026) sem criar
+// múltiplas subscrições manuais.
+export function calculateCurrentEndDate(startDate: string, durationMonths: number): string {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const start = parseISO(startDate)
+  let cycles = 1
+  while (cycles <= 600) {
+    const end = addMonths(start, cycles * durationMonths)
+    end.setDate(end.getDate() - 1)
+    if (end >= today) return format(end, 'yyyy-MM-dd')
+    cycles++
+  }
+  // fallback (nunca deverá acontecer)
+  return calculateEndDate(startDate, durationMonths)
+}
+
 // Label da modalidade
 export function getModalityLabel(modality: string): string {
   const labels: Record<string, string> = {

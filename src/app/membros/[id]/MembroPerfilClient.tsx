@@ -12,7 +12,7 @@ import { Modal } from '@/components/ui/Modal'
 import { EmptyState } from '@/components/ui/EmptyState'
 import {
   getSubscriptionStatusLabel, getModalityLabel,
-  formatDate, formatDateLong, formatCurrency, calculateEndDate,
+  formatDate, formatDateLong, formatCurrency, calculateEndDate, calculateCurrentEndDate,
   getPaymentMethodLabel, getInitials
 } from '@/lib/utils'
 import { ArrowLeft, Edit, Plus, CreditCard, Phone, Mail, MapPin, FileText, Heart, Trash2, ShieldCheck } from 'lucide-react'
@@ -135,7 +135,7 @@ export default function MembroPerfilClient({
     const plan = plans.find((p) => p.id === subForm.plan_id)
     if (!plan) { setSubLoading(false); return }
 
-    const end_date = calculateEndDate(subForm.start_date, plan.duration_months)
+    const end_date = calculateCurrentEndDate(subForm.start_date, plan.duration_months)
 
     // Cancelar subscrição ativa anterior
     if (subscription) {
@@ -532,13 +532,24 @@ export default function MembroPerfilClient({
             value={subForm.start_date}
             onChange={(e) => setSubForm((p) => ({ ...p, start_date: e.target.value }))}
           />
-          {subForm.plan_id && subForm.start_date && (
-            <p className="text-sm text-quartel-400">
-              Data de fim: <span className="text-white font-medium">
-                {formatDate(calculateEndDate(subForm.start_date, plans.find((p) => p.id === subForm.plan_id)?.duration_months ?? 1))}
-              </span>
-            </p>
-          )}
+          {subForm.plan_id && subForm.start_date && (() => {
+            const dur = plans.find((p) => p.id === subForm.plan_id)?.duration_months ?? 1
+            const simpleEnd = calculateEndDate(subForm.start_date, dur)
+            const currentEnd = calculateCurrentEndDate(subForm.start_date, dur)
+            const isRetroactive = simpleEnd !== currentEnd
+            return (
+              <div className={`rounded-lg p-3 space-y-1 ${isRetroactive ? 'bg-amber-500/10 border border-amber-500/25' : 'bg-quartel-900'}`}>
+                <p className="text-sm text-quartel-400">
+                  Válida até: <span className="text-white font-semibold">{formatDate(currentEnd)}</span>
+                </p>
+                {isRetroactive && (
+                  <p className="text-xs text-amber-400/90">
+                    Data retroactiva — a subscrição foi avançada automaticamente para o ciclo atual.
+                  </p>
+                )}
+              </div>
+            )
+          })()}
         </div>
       </Modal>
 
