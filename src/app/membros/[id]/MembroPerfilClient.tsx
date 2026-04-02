@@ -77,6 +77,9 @@ export default function MembroPerfilClient({
   const [payForm, setPayForm] = useState({ amount: '', payment_date: new Date().toISOString().split('T')[0], payment_method: 'cash', notes: '', renewSub: false, renewStartDate: new Date().toISOString().split('T')[0] })
   const [payLoading, setPayLoading] = useState(false)
 
+  // Corrigir subscrição expirada para ciclo atual
+  const [fixLoading, setFixLoading] = useState(false)
+
   // Eliminação de pagamento
   const [deletePayId, setDeletePayId] = useState<string | null>(null)
   const [deletePayLoading, setDeletePayLoading] = useState(false)
@@ -198,6 +201,20 @@ export default function MembroPerfilClient({
     setPayOpen(false)
     setPayLoading(false)
     showToast('Pagamento registado com sucesso')
+  }
+
+  async function handleFixToCurrent() {
+    if (!expiredSub) return
+    setFixLoading(true)
+    const supabase = createClient()
+    const newEndDate = calculateCurrentEndDate(expiredSub.start_date, expiredSub.plan.duration_months)
+    await supabase
+      .from('subscriptions')
+      .update({ end_date: newEndDate, status: 'active' })
+      .eq('id', expiredSub.id)
+    await fetchData()
+    setFixLoading(false)
+    showToast('Subscrição corrigida para o ciclo atual')
   }
 
   async function handleDeletePayment() {
@@ -325,6 +342,26 @@ export default function MembroPerfilClient({
               <p className="text-xl font-bold text-white">{formatCurrency(subscription.plan.price)}</p>
               {subStatus && <Badge color={subStatus.color} size="md">{subStatus.label}</Badge>}
             </div>
+          </div>
+        ) : expiredSub ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-4 p-3 rounded-lg border dark:border-quartel-700 border-gray-200 dark:bg-quartel-900/50 bg-gray-50">
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold dark:text-white text-gray-900">{expiredSub.plan.name}</p>
+                  <Badge color="red" size="sm">Expirada</Badge>
+                </div>
+                <p className="text-xs dark:text-quartel-400 text-gray-500 mt-0.5">
+                  Iniciada em {formatDate(expiredSub.start_date)} · expirou em {formatDate(expiredSub.end_date)}
+                </p>
+              </div>
+              <Button size="sm" onClick={handleFixToCurrent} loading={fixLoading}>
+                Corrigir para ciclo atual
+              </Button>
+            </div>
+            <p className="text-xs dark:text-quartel-500 text-gray-400">
+              Avança a subscrição para {formatDate(calculateCurrentEndDate(expiredSub.start_date, expiredSub.plan.duration_months))} sem criar nova entrada.
+            </p>
           </div>
         ) : (
           <EmptyState
