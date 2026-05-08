@@ -67,7 +67,7 @@ No **fim da sessão** ou antes de compactação:
 2. Actualizar docs/prd.md se houve decisões ou mudanças
 3. Actualizar .gsd/KNOWLEDGE.md se o contexto mudou
 4. Actualizar ~/Comando Central/docs/prd.md §4 se o estado do projecto mudou
-5. OBSIDIAN INGEST GATE (Regra #18 Tier-1): se a sessão produziu artefactos significativos
+5. OBSIDIAN INGEST GATE (Regra #17 Tier-1): se a sessão produziu artefactos significativos
    (spec, ADR, decisão, feature, bug fix, research), ingerir no vault Obsidian ANTES de fechar.
    Artefacto significativo = qualquer coisa que Wilson precisaria de recordar em sessões futuras.
 ```
